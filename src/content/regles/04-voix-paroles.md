@@ -62,7 +62,9 @@ réellement présent est conservé. Au début d'une reprise en milieu de mesure,
 
 Chaque ligne de système se termine toujours par une barre verticale, même lorsque le retour manuel
 intervient au milieu d'une mesure. Cette barre de fermeture ne remplace pas le séparateur conservé
-au début du système suivant.
+au début du système suivant : `:`, `!` ou, si c'est celui qui est écrit, `||`. Dans ce dernier cas,
+la ligne précédente se ferme par une barre simple et la double barre est rendue au début de la ligne
+suivante.
 
 Comme toutes les voix partagent les colonnes de la même grille, l'alignement est automatique. Le
 crochet est un SVG étiré sur les rangées de voix :
