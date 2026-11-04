@@ -37,7 +37,8 @@ export function systemSegmentEndBar(
     return score.voices.some((v) => v.measures[segment.m]?.endBar === "||") ? "||" : "|";
   }
 
-  if (score.voices.some((v) => v.measures[segment.m]?.units[segment.u1]?.sepBefore === "||")) return "||";
+  // The bar closes the previous system line. The actual separator before
+  // the resumed unit is rendered separately at the start of the next system.
   return isLastSegment ? "|" : null;
 }
 
