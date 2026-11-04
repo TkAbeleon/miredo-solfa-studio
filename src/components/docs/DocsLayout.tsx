@@ -28,7 +28,6 @@ export function DocsLayout({ children, active }: { children: ReactNode; active?:
                   params={{ slug: d.slug }}
                   className="block whitespace-nowrap rounded px-2 py-1 text-muted-foreground hover:bg-secondary hover:text-foreground md:whitespace-normal"
                   activeProps={{ className: "bg-secondary text-foreground" }}
-                  data-active={active === d.slug || undefined}
                 >
                   {d.title}
                 </Link>

@@ -26,6 +26,13 @@ export function AppHeader({ children }: { children?: ReactNode }) {
         >
           Cas
         </Link>
+        <Link
+          to="/regles"
+          className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-foreground md:px-3"
+          activeProps={{ className: "bg-secondary text-foreground" }}
+        >
+          Dev
+        </Link>
       </nav>
       <div className="ml-auto flex items-center gap-2">{children}</div>
     </header>
