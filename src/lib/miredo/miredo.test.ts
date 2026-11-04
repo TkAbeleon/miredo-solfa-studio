@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { parseScore } from "./parser";
 import { parseKey, parsePitch, pitchMidi, spellPitch, equivalents, parseChord } from "./pitch";
 import { computePath } from "./playback";
+import { layoutScore, systemSegmentEndBar, systemStartsOffbeat } from "./layout";
 import { SCORE_446, SCORE_DEMO } from "./examples";
 
 const one = (body: string, head = "mesure: 4/4") => parseScore(`${head}\n[V] ${body}`);
@@ -88,6 +89,40 @@ describe("structure", () => {
     const s = one("|d:d!d||{ton:D}(l_1)s_1|");
     expect(s.notes.size).toBe(4);
     expect([...s.notes.values()][3]!.transition?.written).toBe("l_1");
+  });
+});
+
+describe("début et fin des systèmes", () => {
+  it("reconnaît une anacrouse qui commence par un silence", () => {
+    const s = parseScore("mesure: 3/4\\n[V] .r|d:d:d|");
+    const first = { m: 0, u0: 0, u1: s.unitsPerMeasure[0]! };
+    expect(systemStartsOffbeat(s, first)).toBe(true);
+  });
+
+  it("ne traite pas un début normal sur le premier temps comme une anacrouse", () => {
+    const s = parseScore("mesure: 3/4\\n[V] |d:d:d|");
+    const first = { m: 0, u0: 0, u1: s.unitsPerMeasure[0]! };
+    expect(systemStartsOffbeat(s, first)).toBe(false);
+  });
+
+  it("ferme un système coupé au milieu d'une mesure et conserve son séparateur", () => {
+    const s = parseScore("mesure: 4/4\\n[V] |d:d!m//:f|");
+    const systems = layoutScore(s, { width: 1000 })[0]!.systems;
+
+    expect(systems).toHaveLength(2);
+    const firstSegment = systems[0]!.segments.at(-1)!;
+    expect(systemSegmentEndBar(s, firstSegment, true)).toBe("|");
+
+    const nextSegment = systems[1]!.segments[0]!;
+    expect(systemStartsOffbeat(s, nextSegment)).toBe(true);
+    expect(s.voices[0]!.measures[nextSegment.m]!.units[nextSegment.u0]!.sepBefore).toBe(":");
+  });
+
+  it("préserve un séparateur ! au début d'une reprise en milieu de mesure", () => {
+    const s = parseScore("mesure: 4/4\\n[V] |d:d:m//!f|");
+    const systems = layoutScore(s, { width: 1000 })[0]!.systems;
+    const nextSegment = systems[1]!.segments[0]!;
+    expect(s.voices[0]!.measures[nextSegment.m]!.units[nextSegment.u0]!.sepBefore).toBe("!");
   });
 });
 
