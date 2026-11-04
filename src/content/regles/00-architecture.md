@@ -44,6 +44,16 @@ export interface Pitch {
 }
 ```
 
+## Représentation numérique des hauteurs
+
+**Statut : Validé dans ConceptionMireDo (2026-11-04).**
+
+La coordonnée chromatique d'une note appartient à l'ensemble des entiers relatifs ℤ, sans borne théorique. `0` est la référence ; chaque demi-ton vers l'aigu ajoute `1` et chaque demi-ton vers le grave retranche `1`.
+
+L'éditeur est responsable de l'interprétation des graphies Sol-fa saisies et de leur conversion en équivalent numérique. Les autres composants consomment cette valeur calculée et ne doivent pas réimplémenter chacun l'analyse des graphies. La graphie originale est néanmoins conservée séparément pour le rendu fidèle et la sérialisation.
+
+Chaque voix possède également une référence numérique de portée : `0` = clé de Sol, `-1` = clé de Fa, autres entiers selon la même logique. En SATB par défaut : S/A = `0`, T/B = `-1`. Cette référence de portée est distincte de la coordonnée chromatique des notes et de la référence tonale.
+
 ## Modèle de partition
 
 ```ts
