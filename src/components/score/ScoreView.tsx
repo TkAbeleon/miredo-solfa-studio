@@ -27,7 +27,7 @@ export function ScoreView({ score, variant = "pages", width = 640, selectedId, o
     const ref = el.querySelector<HTMLElement>("[data-ref]");
     const scale = ref ? ref.getBoundingClientRect().width / 100 || 1 : 1;
     const map: Measured = new Map();
-    el.querySelectorAll<HTMLElement>("[data-mu]").forEach((n) => map.set(n.dataset.mu!, n.getBoundingClientRect().width / scale));
+    el.querySelectorAll<HTMLElement>("[data-mu]").forEach((n) => map.set(n.dataset["mu"]!, n.getBoundingClientRect().width / scale));
     setMeasured({ score, map });
   }, [score]);
   const map = measured?.score === score ? measured.map : null;
