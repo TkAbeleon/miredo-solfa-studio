@@ -97,3 +97,38 @@ bunx vitest run src/lib/miredo
 ```
 
 Chaque règle documentée ici a au moins un test dans `miredo.test.ts`.
+
+## Système de notation choisi par partition
+
+**Statut : Validé** (journal des décisions, 2026-11-03).
+
+- Chaque partition déclare son propre système de notation.
+- **Sol-fa** est le système par défaut quand aucun autre n'est sélectionné.
+- MireDo prend en charge des systèmes existants et leurs règles établies (le solfège, par exemple)
+  sans inventer de règles.
+- Les règles d'un système ne doivent pas être imposées à un autre.
+
+**État de l'implémentation : partiel.** Le moteur ne gère que le système Sol-fa. Il n'existe pas encore
+d'en-tête `systeme:` : toute partition est lue en Sol-fa. Pour ajouter un autre système, il faudra
+écrire un analyseur distinct qui produit le même modèle `Score` sans réutiliser les règles Sol-fa
+(`NOTE_RE`, voyelles d'altération, `! : . ,`).
+
+## Conservation de la graphie et sérialisation
+
+**Statut : Validé.** L'éditeur, le parseur et la sérialisation conservent la graphie d'origine.
+
+- La **source de vérité est le texte `.mrd`** saisi. Le bouton « .mrd » du Studio télécharge ce texte
+  tel quel ; aucune étape ne le régénère à partir du modèle.
+- Les options du Studio (octaves, paroles, crochet…) modifient seulement leur ligne d'en-tête
+  (`setHeaderValue`), jamais les notes.
+- Chaque jeton garde sa graphie (`Pitch.written`, voyelle écrite, suffixe d'octave), ce qui permettra
+  une future sérialisation exacte depuis le modèle.
+
+> Questions ouvertes de la conception : la représentation interne complète (syllabe, degré,
+> altération, octave, hauteur), la conservation de la variante saisie dans les **exports**, et la
+> conservation de la graphie lors d'une **transposition**. La transposition n'est pas implémentée.
+
+## Archives
+
+Le cahier des charges « Solfa Engine » (`99 - Archives`) est une **base historique**, pas une
+spécification. Aucune règle n'en est tirée ici.

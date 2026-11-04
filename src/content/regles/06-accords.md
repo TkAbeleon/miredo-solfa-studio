@@ -61,3 +61,15 @@ ton: G
 mesure: 4/4
 [V] |<I>d:<Gm7>m!<Dom7>s:<V>s_1|<Fa>f:l!<Re7>r:<IV>f|
 ```
+
+---
+
+## Édition des accords
+
+**Statut : Validé** (principe) : la création, la modification et la mise en forme des accords doivent
+suivre les usages des logiciels établis comme MuseScore, sans imposer leur affichage.
+
+**État : à concevoir.** Aujourd'hui, un accord se saisit seulement dans le texte (`<Gm7>`), placé
+avant la note concernée. Il n'y a ni palette, ni raccourci, ni transposition des symboles, ni
+génération automatique. La rangée d'accords n'apparaît que dans les systèmes qui en contiennent :
+une partition sans accord n'en affiche pas.

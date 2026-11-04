@@ -304,3 +304,71 @@ noms: aucun
 mesure: 3/4
 [V] |.d::|d,.d::|
 ```
+
+---
+
+## 9. Valeur de l'unité selon le dénominateur
+
+**Statut : Validé.** `|d:d:d|` s'écrit pareil en 3/4 et en 3/8 : seule la valeur de l'unité change
+(une noire ou une croche). De même pour 6/4 et 6/8.
+
+**Implémentation.** Le modèle compte le temps **en unités**. Le dénominateur est conservé
+(`header.time.den`) et affiché, mais la lecture sonore utilise `tempo:` en **unités par minute**.
+Écrire `tempo: 120` en 6/8 donne donc 120 croches par minute.
+
+---
+
+## 10. Une nouvelle note termine la prolongation
+
+**Statut : Validé.** Une nouvelle note met fin à la prolongation précédente et commence sa propre
+durée. Une part vide (silence) met fin au son aussi.
+
+```ts
+if (slot.kind === "rest") { current = null; return; }   // silence : fin du son
+…
+current = info;                                           // nouvelle note : nouvelle durée
+```
+
+---
+
+## 11. Limites de la notation Sol-fa
+
+**Statut : Validé.** La notation définit les unités, les divisions en deux et en quatre, et certains
+groupes usuels (triolets, sextolets). Elle **ne définit pas** de règle générale pour toutes les
+divisions. MireDo ne doit pas présenter une extension comme une règle Sol-fa.
+
+**Comportement actuel :** une division non prévue (5 notes collées, ou `d.d.d.d.d`) est découpée en
+parts égales par la règle de lecture compacte, **sans courbe de groupe** (`tuplet` reste `null`).
+C'est une lecture de saisie propre à MireDo, pas une convention Sol-fa. Sa syntaxe et son rendu
+restent à décider.
+
+```mrd-timing
+noms: aucun
+mesure: 2/4
+triolets: courbe
+[V] |ddddd:d.d.d.d.d|
+```
+
+---
+
+## 12. Exemples encore ouverts dans la conception
+
+**Statut : À clarifier.** La conception cite des écritures dont la lecture n'est **pas** validée. Elles
+ne doivent pas servir à déduire une règle générale. Voici ce que donne le moteur aujourd'hui :
+
+| Écriture | Lecture actuelle (provisoire) |
+|---|---|
+| `\|d.-.d:\|` | trois tiers : d ⅓, prolongation ⅓, d ⅓ (lu comme un triolet) |
+| `:d-d:` | trois tiers : d ⅓, prolongation ⅓, d ⅓ (notes collées) |
+| `:d..d:` | trois tiers : d ⅓, **silence** ⅓, d ⅓ — alors que la conception parle de `..` comme d'une division en quatre |
+| `:,,.,,:` | sextolet de six parts vides |
+
+```mrd-timing
+noms: aucun
+mesure: 3/4
+triolets: texte
+[V] |d.-.d:d-d:d..d|
+```
+
+> À trancher avec la conception : la lecture de `..`, les silences et prolongations à l'intérieur
+> d'un triolet, et la syntaxe des silences dans toutes les subdivisions.

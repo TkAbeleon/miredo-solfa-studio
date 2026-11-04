@@ -162,3 +162,33 @@ mesure: 4/4
 expression: Andante
 [V] |{pp}d:{cresc}r!m:{f}f|{stacc}s:{stacc}s!{>}l:{ten}t|{rit.}d1:-!{^}d1:-|
 ```
+
+---
+
+## 4. Ornements, trémolos, répétitions rapides, notes de grâce
+
+**Statut : À concevoir.** Appoggiatures, acciaccaturas, ornements et trémolos gardent leur sens
+classique. La conception ne fixe pas de syntaxe Sol-fa, car leur usage est rare, et renvoie leur
+traitement technique à plus tard.
+
+**Comportement actuel :** aucune syntaxe dédiée. Une directive inconnue comme `{tr}` ou `{appog.}`
+devient un **texte libre** (`kind: "text"`), affiché en italique au-dessus de la note, sans effet sur
+la lecture sonore. Une note de grâce ne peut pas encore être saisie comme une note sans durée.
+
+```mrd
+noms: aucun
+mesure: 2/4
+[V] |{tr}s:{trem.}m|
+```
+
+---
+
+## 5. Transmission aux exports
+
+**Statut : Validé** (principe) : les indications doivent être conservées dans le modèle, affichées, et
+transmises à la lecture **et aux exports**.
+
+**État : partiel.** Elles sont conservées (`NoteTok.marks`, `score.structure`), affichées et
+transmises à la lecture Web Audio. Il n'existe pas encore d'export (MIDI, MusicXML…) : seuls
+l'impression (PDF via le navigateur) et le texte `.mrd` d'origine sont disponibles. Les paramètres
+(une valeur de tempo, par exemple) restent à spécifier.

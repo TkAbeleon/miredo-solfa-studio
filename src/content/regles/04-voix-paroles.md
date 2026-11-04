@@ -210,3 +210,30 @@ voix: S=0; B=-1
 [paroles] A- _ _ _ men
 [paroles:B] A- men, a- men!
 ```
+
+---
+
+## 7. Clés classiques pour les utilisateurs avancés
+
+**Statut : Validé.** Les utilisateurs qui connaissent la notation classique peuvent choisir les clés
+par leur nom (Sol, Fa, Ut/Do et leurs positions). Ce mode ne doit **jamais être imposé** aux
+utilisateurs Sol-fa.
+
+**État : partiel.** `cles: classique` n'affiche que deux glyphes : 𝄞 pour la référence `0`, 𝄢 pour
+`-1`. Les autres références (`+1`, `-2`…) affichent `réf ±n`, car la conception ne dit pas encore à
+quelle clé (Ut 1ʳᵉ à 4ᵉ ligne, Fa 3ᵉ…) chaque valeur correspond. On ne peut pas encore choisir une
+clé d'Ut par son nom. La valeur par défaut reste `cles: solfa`.
+
+---
+
+## 8. Nom, référence de portée et registre : trois propriétés distinctes
+
+**Statut : Validé.** Le nom de la voix est libre et ne dépend pas de sa référence. Une voix « T » n'a
+pas automatiquement la référence `-1` : sans déclaration dans `voix:`, toute voix reçoit la
+référence `0` (avec un diagnostic *info*).
+
+| Propriété | Où | Effet |
+|---|---|---|
+| nom | `voix: S=…` ou `[S]` | affichage seulement |
+| référence de portée | `voix: S=0` | affichage (référence ou clé) et hauteur **jouée** (provisoire) |
+| hauteur écrite | notes Sol-fa + `ton:` | `NoteInfo.midi`, jamais modifiée par la référence |
