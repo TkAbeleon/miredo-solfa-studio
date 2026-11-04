@@ -9,6 +9,38 @@ export interface Segment {
   u0: number;
   u1: number;
 }
+
+/**
+ * True when a system resumes after the beginning of a measure or has no
+ * sounding event on the first subdivision. With the brace hidden, do not
+ * add an artificial initial bar in those cases.
+ */
+export function systemStartsOffbeat(score: Score, first: Segment): boolean {
+  if (first.u0 > 0) return true;
+  if (score.voices.some((v) => v.measures[first.m]?.leadingColon)) return true;
+
+  const hasSoundAtStart = score.voices.some((v) =>
+    v.measures[first.m]?.units[first.u0]?.slots.some((slot) => slot.start === 0 && slot.kind !== "rest"),
+  );
+  return !hasSoundAtStart;
+}
+
+/** Return the bar that closes a segment or the final system line. */
+export function systemSegmentEndBar(
+  score: Score,
+  segment: Segment,
+  isLastSegment: boolean,
+): "|" | "||" | null {
+  const measureUnits = score.unitsPerMeasure[segment.m] ?? 0;
+
+  if (segment.u1 >= measureUnits) {
+    return score.voices.some((v) => v.measures[segment.m]?.endBar === "||") ? "||" : "|";
+  }
+
+  if (score.voices.some((v) => v.measures[segment.m]?.units[segment.u1]?.sepBefore === "||")) return "||";
+  return isLastSegment ? "|" : null;
+}
+
 export interface SystemLayout {
   segments: Segment[];
   stretch: boolean;
@@ -124,7 +156,7 @@ export function layoutScore(
   for (const p of pieces) {
     let pw = 0;
     for (let u = p.u0; u < p.u1; u++) pw += UW(p.m, u) + (u > p.u0 ? SEP : 0);
-    if (p.u1 === score.unitsPerMeasure[p.m]) pw += BAR;
+    if (p.u1 === score.unitsPerMeasure[p.m] || p.breakAfter) pw += BAR;
     if (cur.length && w + pw > avail) pushSys();
     if (!cur.length && (p.u0 > 0 || score.voices.some((v) => v.measures[p.m]?.leadingColon))) pw += SEP;
     cur.push({ m: p.m, u0: p.u0, u1: p.u1 });
