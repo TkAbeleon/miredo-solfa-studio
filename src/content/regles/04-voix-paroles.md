@@ -54,6 +54,16 @@ voix: Voix 1=0; Voix 2=+1; Basse=-1
 **Statut : Validé.** Les barres traversent toutes les portées. Un crochet relie les portées au début
 de chaque système ; il est affiché par défaut et peut être masqué (`crochet: non`).
 
+Lorsque le crochet est masqué, une barre initiale le remplace uniquement si le système commence sur
+le premier temps. En cas d'anacrouse (premier événement après le début du temps) ou de reprise au
+milieu d'une mesure, aucune barre initiale supplémentaire n'est ajoutée : le séparateur musical
+réellement présent est conservé. Au début d'une reprise en milieu de mesure, MireDo reprend donc
+`:` ou `!` selon la partition, et non un `:` imposé.
+
+Chaque ligne de système se termine toujours par une barre verticale, même lorsque le retour manuel
+intervient au milieu d'une mesure. Cette barre de fermeture ne remplace pas le séparateur conservé
+au début du système suivant.
+
 Comme toutes les voix partagent les colonnes de la même grille, l'alignement est automatique. Le
 crochet est un SVG étiré sur les rangées de voix :
 
@@ -65,11 +75,14 @@ crochet est un SVG étiré sur les rangées de voix :
             d="M9,1 C3,3 6,22 5,40 C5,46 3,49 1,50 C3,51 5,54 5,60 C6,78 3,97 9,99" />
     </svg>
   )}
-  {(!h.bracket || groups.length > 1) && <span className="mrd-startbar" />}
+  {(h.bracket ? groups.length > 1 : !systemStartsOffbeat(score, first)) && <span className="mrd-startbar" />}
 </div>
 ```
 
 `vector-effect: non-scaling-stroke` garde un trait constant quelle que soit la hauteur du système.
+
+Le rendu de début de système conserve le séparateur propre à chaque voix. Une barre verticale est
+ajoutée après le dernier segment du système si celui-ci s'arrête avant la fin de la mesure.
 
 ```mrd
 noms: tous
