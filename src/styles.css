@@ -168,7 +168,7 @@
     display: flex;
     align-items: center;
     white-space: nowrap;
-    min-height: 27px;
+    min-height: 1.62em;
   }
   .mrd-cell.has-marks {
     padding-top: 15px;
@@ -179,13 +179,13 @@
   }
   .mrd-pad {
     align-self: stretch;
-    width: 5px;
+    width: 3px;
     flex: none;
   }
   .mrd-fill {
     align-self: stretch;
-    flex: 1 1 4px;
-    min-width: 4px;
+    flex: 1 1 3px;
+    min-width: 3px;
   }
   .mrd-grp {
     align-self: stretch;
@@ -200,13 +200,13 @@
   }
   .mrd-sep {
     justify-content: center;
-    padding: 0 3px;
-    min-width: 12px;
+    padding: 0 2px;
+    min-width: 9px;
   }
   .mrd-half {
     display: inline-block;
     width: 1px;
-    height: 17px;
+    height: 1em;
     background: var(--ink);
   }
   .mrd-label {
@@ -256,7 +256,7 @@
     display: flex;
     justify-content: center;
     gap: 2.5px;
-    min-width: 12px;
+    min-width: 9px;
     padding: 3px 0;
   }
   .mrd-bar i {
@@ -370,9 +370,6 @@
     font-size: 14px;
   }
   .mrd-mnum {
-    position: absolute;
-    left: 2px;
-    top: 0;
     font-size: 10px;
     font-style: italic;
     color: var(--ink-soft);
@@ -397,18 +394,18 @@
     color: var(--primary);
   }
   .mrd-lyrics {
-    min-height: 23px;
-    font-size: 14.5px;
-    padding: 0 6px;
+    min-height: 22px;
+    font-size: 0.86em;
+    padding: 0 3px;
   }
   .mrd-lyrics.is-voice {
-    font-size: 12.5px;
+    font-size: 0.76em;
     min-height: 19px;
     font-style: italic;
   }
   .mrd-syl {
     white-space: nowrap;
-    padding-right: 6px;
+    padding-right: 5px;
   }
 }
 

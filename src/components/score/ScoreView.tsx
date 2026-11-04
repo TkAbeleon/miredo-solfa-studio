@@ -103,7 +103,7 @@ function Measurer({ score, innerRef }: { score: Score; innerRef: React.RefObject
   }
   const showNames = score.header.names !== "aucun";
   return (
-    <div ref={innerRef} aria-hidden className="mrd-system pointer-events-none absolute left-0 top-0 block h-0 overflow-hidden" style={{ visibility: "hidden" }}>
+    <div ref={innerRef} aria-hidden className="mrd-system pointer-events-none absolute left-0 top-0 block h-0 overflow-hidden" style={{ visibility: "hidden", fontSize: score.header.size }}>
       <div data-ref style={{ width: 100 }} />
       <div className="whitespace-nowrap">{cols}</div>
       <div data-mu="sep" className="mrd-cell mrd-sep inline-flex">:</div>
@@ -287,6 +287,12 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
       const key = `${ci}-${ri}`;
       const style = { gridColumn: gc, gridRow: gr };
       if (col.k === "label") {
+        if (row.k === "top" && index > 0 && first.u0 === 0)
+          cells.push(
+            <div key={key} className="mrd-cell mrd-top mrd-mnum" style={style}>
+              {displayMeasureNumber(score, first.m)}
+            </div>,
+          );
         if (row.k === "voice") {
           const v = score.voices[row.v]!;
           cells.push(
@@ -300,7 +306,7 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
         return;
       }
       if (row.k === "top") {
-        if (col.k === "unit") cells.push(<TopCell key={key} ctx={ctx} m={col.m} u={col.u} style={style} first={ci === cols.findIndex((c) => c.k === "unit")} index={index} />);
+        if (col.k === "unit") cells.push(<TopCell key={key} ctx={ctx} m={col.m} u={col.u} style={style} />);
         return;
       }
       if (row.k === "chords") {
@@ -370,7 +376,7 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
   });
 
   return (
-    <div className="mrd-system" style={{ gridTemplateColumns: template }}>
+    <div className="mrd-system" style={{ gridTemplateColumns: template, fontSize: h.size }}>
       {cells}
     </div>
   );
@@ -399,13 +405,12 @@ function ClefGlyph({ refNum }: { refNum: number }) {
   return <span className="mrd-ref" title="Autre position de référence">réf {fmtRef(refNum)}</span>;
 }
 
-function TopCell({ ctx, m, u, style, first, index }: { ctx: Ctx; m: number; u: number; style: React.CSSProperties; first: boolean; index: number }) {
+function TopCell({ ctx, m, u, style }: { ctx: Ctx; m: number; u: number; style: React.CSSProperties }) {
   const { score } = ctx;
   const marks = score.structure.filter((s) => s.m === m && s.u === u).sort((a, b) => a.frac - b.frac);
   const atEnd = marks.length > 0 && marks.every((x) => x.frac >= 1);
   return (
     <div className={cn("mrd-cell mrd-top mrd-unit", atEnd && "justify-end")} style={style}>
-      {first && index > 0 && u === 0 && <span className="mrd-mnum">{displayMeasureNumber(score, m)}</span>}
       <span className="flex gap-2">
         {marks.map((s, i) => (
           <StructLabel key={i} d={s.d} keyLabel={score.header.keyLabel} />

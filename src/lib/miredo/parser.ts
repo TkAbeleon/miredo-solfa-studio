@@ -151,6 +151,7 @@ export interface Header {
   tuplets: "courbe" | "texte";
   names: "premier" | "tous" | "aucun";
   lyricsVoice: string | null;
+  size: number;
   raw: Record<string, { value: string; line: number }>;
 }
 
@@ -319,6 +320,7 @@ export function parseScore(text: string): Score {
     tuplets: hv("triolets") === "texte" ? "texte" : "courbe",
     names: (["premier", "tous", "aucun"].includes(hv("noms")) ? hv("noms") : "premier") as Header["names"],
     lyricsVoice: raw["paroles-voix"]?.value || null,
+    size: Math.min(22, Math.max(11, Number(hv("taille", "15")) || 15)),
     raw,
   };
 
