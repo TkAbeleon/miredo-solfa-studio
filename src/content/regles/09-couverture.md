@@ -32,6 +32,9 @@ son état dans le code.
 | Formes courantes privilégiées dans l'interface | Hauteur § 10 | Partiel (pas de suggestions) |
 | Pas de `♮ ♯ ♭`, pas de bécarre ; `b #` réservés à la tonalité | Hauteur § 8 | Implémenté |
 | Octaves numériques `d1 d_1 di1 di_1` | Hauteur § 4 | Implémenté |
+| Axe chromatique entier continu ℤ, sans borne théorique | Hauteur § représentation numérique | Décision validée ; modèle/code à adapter |
+| Conversion des graphies en valeurs numériques par l'éditeur ; autres composants consommateurs | Hauteur § représentation numérique, Architecture | Décision validée ; architecture actuelle partielle |
+| Référence de portée numérique par voix, SATB : S/A = 0, T/B = -1 | Hauteur § représentation numérique, Voix | Décision validée ; vérifier la conformité du code |
 | Rendu exposant / indice ; thème apostrophe / virgule | Hauteur § 4 | Implémenté |
 | Suffixe `0`, plage, espaces, casse, alias | Hauteur § 11 | Provisoire |
 | Référence `A–G` + `b` / `#`, `d` = référence | Hauteur § 5 | Implémenté |
