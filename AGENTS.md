@@ -8,3 +8,9 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+## MireDo architecture
+- The Tonic Sol-fa engine lives in `src/lib/miredo/` (pitch, rhythm, parser, layout, playback) and is pure TS with no React; UI renders only from the parsed `Score`. Why: rules from the ConceptionMireDo repo stay testable in `miredo.test.ts`.
+- Written Sol-fa spelling is never rewritten; absolute pitch is computed separately (`NoteInfo`). Why: core MireDo rule (no enharmonic normalization).
+- Headers, `{…}` directives, `<…>` chords, `[ ]` underline and `//` `///` breaks are a provisional demo syntax, not validated MireDo grammar; keep them labelled as such in UI copy.
+- Line breaking uses real DOM widths from the hidden `Measurer` in `ScoreView`, with estimates in `layout.ts` only as SSR fallback. Why: estimates misjudge proportional fonts.

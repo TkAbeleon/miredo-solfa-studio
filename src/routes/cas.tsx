@@ -101,7 +101,7 @@ function CaseCard({ c }: { c: Case }) {
             <ScoreView score={score} variant="inline" width={600} />
           </div>
         </div>
-        <pre className="m-5 mt-0 overflow-x-auto rounded-lg bg-editor p-3 font-mono text-xs leading-5 text-editor-foreground md:mt-5 md:max-w-[300px]">
+        <pre className="m-5 mt-0 whitespace-pre-wrap break-all rounded-lg bg-editor p-3 font-mono text-xs leading-5 text-editor-foreground md:mt-5 md:max-w-[300px]">
           {body}
         </pre>
       </div>
