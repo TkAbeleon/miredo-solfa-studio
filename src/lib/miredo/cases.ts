@@ -123,7 +123,7 @@ export const CASE_SECTIONS: CaseSection[] = [
         status: "Validé",
         doc: "05 - Rythme et durée",
         explain: "Exemple de la conception : .d:d.d|d:d:d| — la première demi-unité est silencieuse.",
-        mrd: `${H("mesure: 3/4")}\n[V] :.d:d.d|d:d:d|`,
+        mrd: `${H("mesure: 3/4")}\n[V] .d:d.d|d:d:d|`,
         show: "timing",
       },
       {
@@ -132,7 +132,7 @@ export const CASE_SECTIONS: CaseSection[] = [
         status: "Validé",
         doc: "05 - Rythme et durée",
         explain: "La durée vient de la place dans la subdivision, pas du séparateur « : ».",
-        mrd: `${H("mesure: 4/4")}\n[V] |d.:!:|`,
+        mrd: `${H("mesure: 4/4")}\n[V] |d.:::|`,
         show: "timing",
       },
       {
