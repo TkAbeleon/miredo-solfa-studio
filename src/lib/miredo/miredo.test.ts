@@ -6,7 +6,7 @@ import { SCORE_446, SCORE_DEMO } from "./examples";
 
 const one = (body: string, head = "mesure: 4/4") => parseScore(`${head}\n[V] ${body}`);
 const slots = (body: string, head?: string) =>
-  one(body, head).voices[0].measures.flatMap((m) => m.units.flatMap((u) => u.slots.map((s) => [s.kind, s.start, s.dur])));
+  one(body, head).voices[0]!.measures.flatMap((m) => m.units.flatMap((u) => u.slots.map((s) => [s.kind, s.start, s.dur])));
 
 describe("hauteur", () => {
   it("di_1 garde sa graphie et descend d'une octave", () => {
@@ -49,7 +49,7 @@ describe("rythme", () => {
   });
   it("|d:-!-.:| : Do dure deux unités et demie", () => {
     const s = one("|d:-!-.:|");
-    expect([...s.notes.values()][0].dur).toBe(2.5);
+    expect([...s.notes.values()][0]!.dur).toBe(2.5);
   });
   it("trois notes collées se partagent l'unité en tiers", () => {
     expect(slots("|ddd|", "mesure: 1/4").map((x) => x[2])).toEqual([1 / 3, 1 / 3, 1 / 3]);
@@ -59,7 +59,7 @@ describe("rythme", () => {
   });
   it("la prolongation traverse la barre de mesure", () => {
     const s = one("|d:d!d:d|-:-!d:d|");
-    expect([...s.notes.values()][3].dur).toBe(3);
+    expect([...s.notes.values()][3]!.dur).toBe(3);
   });
   it("mesure 9/8 avec disposition 3/4 : 3 unités, signature conservée", () => {
     const s = parseScore("mesure: 9/8\ndisposition: 3/4\n[V] |d:d:d|d:d:d|");
@@ -87,7 +87,7 @@ describe("structure", () => {
   it("l'indication de transition n'est pas une note jouée", () => {
     const s = one("|d:d!d||{ton:D}(l_1)s_1|");
     expect(s.notes.size).toBe(4);
-    expect([...s.notes.values()][3].transition?.written).toBe("l_1");
+    expect([...s.notes.values()][3]!.transition?.written).toBe("l_1");
   });
 });
 

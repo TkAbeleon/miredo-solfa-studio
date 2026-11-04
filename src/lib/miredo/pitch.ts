@@ -75,7 +75,7 @@ export function parseKey(k: string): KeyRef | null {
   const m = /^([A-G])(b|#)?$/.exec(k.trim());
   if (!m) return null;
   const acc: -1 | 0 | 1 = m[2] === "b" ? -1 : m[2] === "#" ? 1 : 0;
-  return { label: m[0], letter: m[1], acc, pc: NAT[m[1]] + acc };
+  return { label: m[0], letter: m[1]!, acc, pc: NAT[m[1]!]! + acc };
 }
 
 /**
@@ -97,9 +97,9 @@ export function spellPitch(p: Pitch, key: KeyRef): { name: string; octave: numbe
   const keyIdx = LETTERS.indexOf(key.letter as (typeof LETTERS)[number]);
   const degIdx = DEGREES.indexOf(p.base);
   const raw = keyIdx + degIdx;
-  const letter = LETTERS[raw % 7];
+  const letter = LETTERS[raw % 7]!;
   const carry = Math.floor(raw / 7);
-  const naturalMidi = 60 + NAT[letter] + 12 * carry + 12 * p.octave;
+  const naturalMidi = 60 + NAT[letter]! + 12 * carry + 12 * p.octave;
   const midi = pitchMidi(p, key);
   const acc = midi - naturalMidi;
   const sign = ACC_SIGNS[acc] ?? (acc > 0 ? `+${acc}` : String(acc));
@@ -175,15 +175,15 @@ export function parseChord(src: string, key: KeyRef | null): Chord {
     if (key) {
       const p: Pitch = {
         written: "",
-        base: SOLFA_CHORD_ROOTS[sm[1]],
+        base: SOLFA_CHORD_ROOTS[sm[1]!]!,
         vowel: "",
         alter: sm[2] === "#" ? 1 : sm[2] === "b" ? -1 : 0,
         octave: 0,
       };
       const sp = spellPitch(p, key);
-      absolute = sp.name.replace("♭", "b").replace("♯", "#") + sm[3];
+      absolute = sp.name.replace("♭", "b").replace("♯", "#") + (sm[3] ?? "");
     }
-    return { written: s, kind: "solfa", absolute };
+    return absolute ? { written: s, kind: "solfa", absolute } : { written: s, kind: "solfa" };
   }
   return { written: s, kind: "latin" };
 }

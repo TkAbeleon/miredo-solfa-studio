@@ -16,7 +16,7 @@ function splitBy(items: RhythmItem[], kind: "dot" | "comma"): RhythmItem[][] {
   const parts: RhythmItem[][] = [[]];
   for (const it of items) {
     if (it.kind === kind) parts.push([]);
-    else parts[parts.length - 1].push(it);
+    else parts[parts.length - 1]!.push(it);
   }
   return parts;
 }

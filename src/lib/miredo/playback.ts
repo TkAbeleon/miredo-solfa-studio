@@ -27,7 +27,7 @@ export function computePath(score: Score): number[] {
     }
     const k = jumps.findIndex((j, idx) => j.m === i && !used.has(idx));
     if (k >= 0) {
-      const j = jumps[k];
+      const j = jumps[k]!;
       used.add(k);
       jumped = true;
       if (j.d.kind === "dc") {
@@ -71,7 +71,7 @@ export interface ScheduledNote {
 export function buildSchedule(score: Score, path: number[]) {
   const base = 60 / Math.max(20, score.header.tempo);
   let tempo = 1;
-  let tempoMode: "rit" | "accel" | null = null;
+  let tempoMode = null as "rit" | "accel" | null;
   let gain = 0.7;
   let ramp = 0;
   let rampLeft = 0;
@@ -90,7 +90,7 @@ export function buildSchedule(score: Score, path: number[]) {
 
   for (const m of path) {
     const mt0 = t;
-    const units = score.unitsPerMeasure[m];
+    const units = score.unitsPerMeasure[m] ?? 0;
     for (let u = 0; u < units; u++) {
       let fermata = false;
       for (const v of score.voices) {

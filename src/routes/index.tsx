@@ -59,7 +59,7 @@ function Studio() {
   useEffect(() => {
     const el = deskRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(([e]) => setZoom(Math.min(1, (e.contentRect.width - 32) / 794)));
+    const ro = new ResizeObserver(([e]) => e && setZoom(Math.min(1, (e.contentRect.width - 32) / 794)));
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -192,7 +192,7 @@ function Studio() {
                 <span className="text-muted-foreground">{o.label}</span>
                 <div className="flex rounded-md border bg-card p-0.5">
                   {o.values.map(([v, l]) => {
-                    const active = currentOpt(o.key, o.values[0][0]) === v;
+                    const active = currentOpt(o.key, o.values[0]![0]) === v;
                     return (
                       <button
                         key={v}

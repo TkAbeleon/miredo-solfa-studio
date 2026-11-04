@@ -422,7 +422,7 @@ export function parseScore(text: string): Score {
       const err = (message: string, level: Diagnostic["level"] = "error") =>
         diagnostics.push({ level, line, message: `${voice.name} : ${message}` });
       while (i < text.length) {
-        const c = text[i];
+        const c = text[i]!;
         if (/\s/.test(c)) {
           i++;
           continue;
@@ -518,7 +518,7 @@ export function parseScore(text: string): Score {
             t: "note",
             id: `${vi}:${st.measures.length}:${st.cur.units.length}:${st.toks.length}`,
             p,
-            trans: st.pendingTrans ?? undefined,
+            ...(st.pendingTrans ? { trans: st.pendingTrans } : {}),
             marks: st.pendingMarks,
             ul: st.ul,
           });
@@ -578,7 +578,7 @@ export function parseScore(text: string): Score {
   }, 0);
 
   for (let m = 0; m < measureCount; m++) {
-    const n = unitsPerMeasure[m];
+    const n = unitsPerMeasure[m]!;
     const line = voices.find((v) => v.measures[m])?.measures[m]?.line ?? 1;
     const num = m + (hasPickup ? 0 : 1);
     const isPickup = m === 0 && hasPickup;
@@ -730,7 +730,7 @@ export function parseScore(text: string): Score {
         diagnostics.push({ level: "warning", line: ll.line, message: `Paroles : plus de syllabes que de notes dans la voix ${voices[vi].name} (« ${tk} » et suivantes ignorées).` });
         break;
       }
-      const o = onsets[ptr++];
+      const o = onsets[ptr++]!;
       if (tk === "_") continue;
       const k = `${o.m}:${o.u}`;
       if (!map.has(k)) map.set(k, []);

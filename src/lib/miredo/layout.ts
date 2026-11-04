@@ -53,6 +53,11 @@ interface Piece extends Segment {
   breakAfter: "line" | "page" | null;
 }
 
+const mu = (k: string): [number, number] => {
+  const [a, b] = k.split(":");
+  return [Number(a), Number(b)];
+};
+
 function systemHeight(score: Score, segs: Segment[]): number {
   const inSys = (m: number, u: number) => segs.some((s) => s.m === m && u >= s.u0 && u < s.u1);
   let h = 22; // rangée supérieure
@@ -63,10 +68,10 @@ function systemHeight(score: Score, segs: Segment[]): number {
     if (marks) h += 13;
   }
   for (const [, map] of score.lyrics.perVoice) {
-    if ([...map.keys()].some((k) => inSys(+k.split(":")[0], +k.split(":")[1]))) h += 21;
+    if ([...map.keys()].some((k) => inSys(...mu(k)))) h += 21;
   }
   for (const map of score.lyrics.common) {
-    if ([...map.keys()].some((k) => inSys(+k.split(":")[0], +k.split(":")[1]))) h += 23;
+    if ([...map.keys()].some((k) => inSys(...mu(k)))) h += 23;
   }
   return h + 30;
 }
@@ -77,14 +82,14 @@ export function layoutScore(
 ): PageLayout[] {
   const pieces: Piece[] = [];
   for (let m = 0; m < score.measureCount; m++) {
-    const n = score.unitsPerMeasure[m];
+    const n = score.unitsPerMeasure[m] ?? 0;
     const cuts = [
       ...new Set(score.breaks.filter((b) => b.m === m && b.u > 0 && b.u < n).map((b) => b.u)),
     ].sort((a, b) => a - b);
     const bounds = [0, ...cuts, n];
     for (let i = 0; i < bounds.length - 1; i++) {
-      const u0 = bounds[i];
-      const u1 = bounds[i + 1];
+      const u0 = bounds[i]!;
+      const u1 = bounds[i + 1]!;
       const bk =
         u1 < n
           ? score.breaks.find((b) => b.m === m && b.u === u1)
@@ -125,13 +130,13 @@ export function layoutScore(
   const pages: PageLayout[] = [{ systems: [] }];
   let used = opts.firstPageOffset ?? 0;
   out.forEach((sys, i) => {
-    if (used + sys.height > opts.pageHeight! && pages[pages.length - 1].systems.length) {
+    if (used + sys.height > opts.pageHeight! && pages[pages.length - 1]!.systems.length) {
       pages.push({ systems: [] });
       used = 0;
     }
-    pages[pages.length - 1].systems.push(sys);
+    pages[pages.length - 1]!.systems.push(sys);
     used += sys.height;
-    if (systems[i].pageAfter && i < out.length - 1) {
+    if (systems[i]!.pageAfter && i < out.length - 1) {
       pages.push({ systems: [] });
       used = 0;
     }
