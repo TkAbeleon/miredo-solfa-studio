@@ -265,7 +265,7 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
         );
       return;
     }
-    if (col.k === "bar" || ((col.k === "sep" || col.k === "lead") && isDoubleSep(score, col.m, col.u) && col.k === "sep")) {
+    if (col.k === "bar" || ((col.k === "sep" || col.k === "lead") && isDoubleSep(score, col.m, col.u))) {
       const dbl = col.k === "bar" ? col.bar === "||" : true;
       groups.forEach((_, gi) => {
         const [a, b] = groupSpan(gi);
