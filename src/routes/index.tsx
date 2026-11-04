@@ -178,7 +178,7 @@ function Studio() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             spellCheck={false}
-            className="h-[42vh] flex-1 resize-none lg:h-auto lg:min-h-[340px] bg-transparent p-4 font-mono text-[12.5px] leading-5 text-editor-foreground outline-none selection:bg-primary/40"
+            className="h-[42vh] flex-none resize-none lg:h-auto lg:flex-1 lg:min-h-[340px] bg-transparent p-4 font-mono text-[12.5px] leading-5 text-editor-foreground outline-none selection:bg-primary/40"
             aria-label="Source de la partition"
           />
           <Diagnostics list={score.diagnostics} counts={counts} onJump={jumpToLine} />
