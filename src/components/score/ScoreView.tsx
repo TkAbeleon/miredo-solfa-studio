@@ -2,7 +2,7 @@ import { Fragment, useLayoutEffect, useMemo, useRef, useState, type ReactNode } 
 import { cn } from "@/lib/utils";
 import type { Directive, NoteTok, HoldTok, Score, Unit, UnitTok } from "@/lib/miredo/parser";
 import { displayMeasureNumber } from "@/lib/miredo/parser";
-import { layoutScore, type Measured, type SystemLayout } from "@/lib/miredo/layout";
+import { layoutScore, systemSegmentEndBar, systemStartsOffbeat, type Measured, type SystemLayout } from "@/lib/miredo/layout";
 import type { KeyRef, Pitch } from "@/lib/miredo/pitch";
 import { parseKey } from "@/lib/miredo/pitch";
 
@@ -193,20 +193,17 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
   // ---- colonnes
   const cols: Col[] = [{ k: "label" }, { k: "brace" }];
   const first = sys.segments[0]!;
+  const startsOffbeat = systemStartsOffbeat(score, first);
   if (first.u0 > 0 || score.voices.some((v) => v.measures[first.m]?.leadingColon))
     cols.push({ k: "lead", m: first.m, u: first.u0 });
+  const lastSegment = sys.segments[sys.segments.length - 1];
   for (const seg of sys.segments) {
     for (let u = seg.u0; u < seg.u1; u++) {
       if (u > seg.u0) cols.push({ k: "sep", m: seg.m, u });
       cols.push({ k: "unit", m: seg.m, u });
     }
-    const n = score.unitsPerMeasure[seg.m];
-    if (seg.u1 === n) {
-      const bars = score.voices.map((v) => v.measures[seg.m]?.endBar);
-      cols.push({ k: "bar", m: seg.m, bar: bars.includes("||") ? "||" : "|" });
-    } else if (score.voices.some((v) => v.measures[seg.m]?.units[seg.u1]?.sepBefore === "||")) {
-      cols.push({ k: "bar", m: seg.m, bar: "||" });
-    }
+    const endBar = systemSegmentEndBar(score, seg, seg === lastSegment);
+    if (endBar) cols.push({ k: "bar", m: seg.m, bar: endBar });
   }
 
   // ---- rangées
@@ -263,7 +260,7 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
                 <path vectorEffect="non-scaling-stroke" d="M9,1 C3,3 6,22 5,40 C5,46 3,49 1,50 C3,51 5,54 5,60 C6,78 3,97 9,99" />
               </svg>
             )}
-            {(!h.bracket || groups.length > 1) && <span className="mrd-startbar" />}
+            {(h.bracket ? groups.length > 1 : !startsOffbeat) && <span className="mrd-startbar" />}
           </div>,
         );
       return;
@@ -342,9 +339,10 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
       if (!measure) return;
       const rowMarks = sysHasMarks(score, sys, row.v);
       if (col.k === "lead") {
+        const leadUnit = measure.units[col.u];
         cells.push(
           <div key={key} className={cn("mrd-cell mrd-sep", rowMarks && "has-marks")} style={style}>
-            :
+            {leadUnit?.sepBefore === "!" ? <span className="mrd-half" /> : ":"}
           </div>,
         );
         return;
