@@ -119,7 +119,7 @@ function Studio() {
     <div className="flex min-h-screen flex-col">
       <AppHeader>
         <select
-          className="h-9 max-w-[220px] rounded-md border bg-card px-2 text-sm"
+          className="h-9 w-28 rounded-md border bg-card px-2 text-sm sm:w-auto sm:max-w-[220px]"
           defaultValue=""
           onChange={(e) => {
             const ex = EXAMPLES.find((x) => x.id === e.target.value);
@@ -142,7 +142,7 @@ function Studio() {
         </select>
         <Button variant="play" size="sm" onClick={togglePlay}>
           {isPlaying ? <Square /> : <Play />}
-          {isPlaying ? "Arrêter" : "Écouter"}
+          <span className="hidden sm:inline">{isPlaying ? "Arrêter" : "Écouter"}</span>
         </Button>
         <Button variant="outline" size="sm" onClick={() => window.print()} className="hidden sm:inline-flex">
           <Printer /> Imprimer
@@ -178,7 +178,7 @@ function Studio() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             spellCheck={false}
-            className="min-h-[340px] flex-1 resize-none bg-transparent p-4 font-mono text-[12.5px] leading-5 text-editor-foreground outline-none selection:bg-primary/40"
+            className="h-[42vh] flex-1 resize-none lg:h-auto lg:min-h-[340px] bg-transparent p-4 font-mono text-[12.5px] leading-5 text-editor-foreground outline-none selection:bg-primary/40"
             aria-label="Source de la partition"
           />
           <Diagnostics list={score.diagnostics} counts={counts} onJump={jumpToLine} />
