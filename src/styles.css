@@ -4,28 +4,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Design system definition.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
- */
-
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -45,100 +29,405 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-ring-offset-background: var(--background);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-editor: var(--editor);
+  --color-editor-foreground: var(--editor-foreground);
+  --color-editor-muted: var(--editor-muted);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-open: var(--open);
+  --font-sans: "Familjen Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-score: "STIX Two Text", "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --shadow-paper: var(--paper-shadow);
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
-}
+  --radius: 0.5rem;
+  --background: oklch(0.93 0.014 78);
+  --foreground: oklch(0.21 0.014 55);
+  --card: oklch(0.975 0.009 85);
+  --card-foreground: oklch(0.21 0.014 55);
+  --popover: oklch(0.985 0.007 85);
+  --popover-foreground: oklch(0.21 0.014 55);
+  --primary: oklch(0.53 0.175 33);
+  --primary-foreground: oklch(0.98 0.01 85);
+  --secondary: oklch(0.895 0.018 78);
+  --secondary-foreground: oklch(0.25 0.015 55);
+  --muted: oklch(0.905 0.014 78);
+  --muted-foreground: oklch(0.47 0.02 60);
+  --accent: oklch(0.86 0.06 78);
+  --accent-foreground: oklch(0.25 0.03 60);
+  --destructive: oklch(0.55 0.2 27);
+  --destructive-foreground: oklch(0.98 0.01 85);
+  --border: oklch(0.84 0.016 75);
+  --input: oklch(0.84 0.016 75);
+  --ring: oklch(0.53 0.175 33);
 
-.dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  --paper: oklch(0.993 0.005 90);
+  --ink: oklch(0.16 0.01 60);
+  --ink-soft: oklch(0.46 0.015 60);
+  --editor: oklch(0.205 0.012 55);
+  --editor-foreground: oklch(0.9 0.018 85);
+  --editor-muted: oklch(0.6 0.02 70);
+  --ok: oklch(0.55 0.12 150);
+  --warn: oklch(0.66 0.14 70);
+  --open: oklch(0.55 0.1 240);
+  --playing: oklch(0.88 0.1 85 / 0.55);
+  --selected: oklch(0.53 0.175 33 / 0.16);
+  --paper-shadow: 0 1px 0 oklch(0.8 0.02 70), 0 18px 40px -18px oklch(0.3 0.03 50 / 0.45);
 }
 
 @layer base {
   * {
     border-color: var(--color-border);
   }
-
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Partition Tonic Sol-fa                                              */
+/* ------------------------------------------------------------------ */
+
+@layer components {
+  .mrd-page {
+    width: 794px;
+    min-height: 1123px;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: var(--paper-shadow);
+    padding: 56px 52px 48px;
+    font-family: var(--font-score);
+    position: relative;
+  }
+  .mrd-inline {
+    color: var(--ink);
+    font-family: var(--font-score);
+  }
+  .mrd-title {
+    text-align: center;
+    font-weight: 700;
+    font-size: 21px;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+  }
+  .mrd-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 13px;
+    margin-top: 14px;
+  }
+  .mrd-keyline {
+    display: flex;
+    gap: 2.2rem;
+    align-items: baseline;
+    font-size: 15px;
+    margin: 6px 0 4px;
+  }
+  .mrd-keyline b {
+    font-weight: 700;
+  }
+  .mrd-acc {
+    font-style: italic;
+    font-weight: 700;
+    font-size: 0.8em;
+    vertical-align: -0.12em;
+  }
+  .mrd-pagenum {
+    position: absolute;
+    bottom: 22px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  .mrd-system {
+    display: grid;
+    align-items: center;
+    margin-bottom: 18px;
+    font-size: 17px;
+    line-height: 1;
+  }
+  .mrd-cell {
+    position: relative;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    min-height: 27px;
+  }
+  .mrd-cell.has-marks {
+    padding-top: 13px;
+  }
+  .mrd-unit {
+    padding: 0 6px;
+    justify-content: flex-start;
+  }
+  .mrd-unit.is-playing {
+    background: var(--playing);
+  }
+  .mrd-sep {
+    justify-content: center;
+    padding: 0 3px;
+    min-width: 12px;
+  }
+  .mrd-half {
+    display: inline-block;
+    width: 1px;
+    height: 17px;
+    background: var(--ink);
+  }
+  .mrd-label {
+    font-size: 12px;
+    font-family: var(--font-sans);
+    color: var(--ink-soft);
+    padding-right: 4px;
+    gap: 3px;
+  }
+  .mrd-label .mrd-ref {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    opacity: 0.8;
+  }
+  .mrd-clef {
+    font-family: "Noto Music", var(--font-score);
+    font-size: 20px;
+    color: var(--ink);
+  }
+  .mrd-brace {
+    width: 14px;
+    align-self: stretch;
+    position: relative;
+  }
+  .mrd-brace svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .mrd-brace path {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.6;
+  }
+  .mrd-startbar {
+    position: absolute;
+    right: 0;
+    top: 2px;
+    bottom: 2px;
+    width: 1.4px;
+    background: var(--ink);
+  }
+  .mrd-bar {
+    align-self: stretch;
+    display: flex;
+    justify-content: center;
+    gap: 2.5px;
+    min-width: 12px;
+    padding: 3px 0;
+  }
+  .mrd-bar i {
+    display: block;
+    width: 1.2px;
+    background: var(--ink);
+  }
+  .mrd-bar.is-double i:last-child {
+    width: 2.4px;
+  }
+
+  .mrd-note {
+    position: relative;
+    cursor: pointer;
+    padding: 0 1px;
+    border-radius: 3px;
+  }
+  .mrd-note:hover {
+    background: var(--selected);
+  }
+  .mrd-note.is-selected {
+    background: var(--selected);
+    box-shadow: 0 0 0 1.5px var(--primary);
+  }
+  .mrd-note.is-error,
+  .mrd-hold.is-error {
+    color: var(--destructive);
+    text-decoration: wavy underline var(--destructive);
+  }
+  .mrd-note sup,
+  .mrd-note sub {
+    font-size: 0.6em;
+    line-height: 0;
+  }
+  .mrd-trans {
+    font-size: 0.62em;
+    vertical-align: 0.65em;
+    margin-right: 1px;
+    color: var(--ink);
+  }
+  .mrd-hold {
+    position: relative;
+    padding: 0 2px;
+  }
+  .mrd-sub {
+    padding: 0 0.5px;
+  }
+  .mrd-ul {
+    text-decoration: underline;
+    text-decoration-thickness: 1.2px;
+    text-underline-offset: 4px;
+    text-decoration-skip-ink: none;
+  }
+  .mrd-cell.ul-full::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 3px;
+    height: 1.2px;
+    background: var(--ink);
+  }
+  .mrd-marks {
+    position: absolute;
+    bottom: calc(100% - 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 3px;
+    align-items: flex-end;
+    font-size: 12px;
+    pointer-events: none;
+  }
+  .mrd-glyph {
+    font-family: "Noto Music", var(--font-score);
+    font-size: 15px;
+    line-height: 0.8;
+  }
+  .mrd-dyn {
+    font-style: italic;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .mrd-expr {
+    font-style: italic;
+    font-size: 12px;
+  }
+  .mrd-tuplet {
+    position: relative;
+    display: inline-flex;
+  }
+  .mrd-tuplet svg {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -11px;
+    width: 100%;
+    height: 9px;
+    overflow: visible;
+  }
+  .mrd-tuplet path {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1;
+  }
+  .mrd-tuplet .mrd-tnum {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    font-style: italic;
+    background: var(--paper);
+    padding: 0 1px;
+  }
+
+  .mrd-top {
+    min-height: 20px;
+    font-size: 12.5px;
+    align-items: flex-end;
+    padding-bottom: 2px;
+    overflow: visible;
+  }
+  .mrd-top .mrd-keychange {
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .mrd-mnum {
+    position: absolute;
+    left: 2px;
+    top: 0;
+    font-size: 10px;
+    font-style: italic;
+    color: var(--ink-soft);
+  }
+  .mrd-struct {
+    font-style: italic;
+    font-weight: 600;
+  }
+  .mrd-chords {
+    min-height: 20px;
+    font-size: 13px;
+    gap: 8px;
+    font-family: var(--font-sans);
+    color: var(--ink-soft);
+  }
+  .mrd-chord-roman {
+    font-family: var(--font-score);
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .mrd-chord-solfa {
+    color: var(--primary);
+  }
+  .mrd-lyrics {
+    min-height: 23px;
+    font-size: 14.5px;
+    padding: 0 6px;
+  }
+  .mrd-lyrics.is-voice {
+    font-size: 12.5px;
+    min-height: 19px;
+    font-style: italic;
+  }
+  .mrd-syl {
+    white-space: nowrap;
+    padding-right: 6px;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  body {
+    background: var(--paper);
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-area {
+    zoom: 1 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  .mrd-page {
+    box-shadow: none;
+    margin: 0 !important;
+    break-after: page;
   }
 }

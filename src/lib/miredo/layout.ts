@@ -1,0 +1,140 @@
+// Mise en page : systèmes (retours à la ligne) et pages.
+// Par défaut une mesure entière qui ne tient pas est reportée au système suivant ;
+// `//` impose un retour (même au milieu d'une mesure), `///` un saut de page.
+
+import type { Score } from "./parser";
+
+export interface Segment {
+  m: number;
+  u0: number;
+  u1: number;
+}
+export interface SystemLayout {
+  segments: Segment[];
+  stretch: boolean;
+  height: number;
+}
+export interface PageLayout {
+  systems: SystemLayout[];
+}
+
+const NOTE_PX = 10.2;
+const LYR_PX = 8.2;
+const UNIT_PAD = 14;
+const SEP_PX = 14;
+const BAR_PX = 14;
+export const LABEL_PX = 46;
+
+export function unitWidth(score: Score, m: number, u: number): number {
+  let max = 0;
+  for (const v of score.voices) {
+    const unit = v.measures[m]?.units[u];
+    if (!unit) continue;
+    let chars = 0;
+    for (const t of unit.toks) {
+      if (t.t === "note") chars += t.p.base.length + t.p.vowel.length + (t.p.octave ? 0.6 : 0) + (t.trans ? 1 : 0) + 0.25;
+      else if (t.t === "hold") chars += 1.1;
+      else if (!(unit.tuplet && score.header.tuplets === "courbe")) chars += 0.45;
+    }
+    max = Math.max(max, chars * NOTE_PX);
+  }
+  const key = `${m}:${u}`;
+  const lines = [...score.lyrics.common, ...score.lyrics.perVoice.values()];
+  for (const l of lines) {
+    const arr = l.get(key);
+    if (arr) max = Math.max(max, arr.reduce((a, x) => a + x.text.length * LYR_PX + 7, 0));
+  }
+  const ch = score.chords.filter((c) => c.m === m && c.u === u);
+  if (ch.length) max = Math.max(max, ch.reduce((a, c) => a + c.chord.written.length * 8 + 8, 0));
+  return max + UNIT_PAD;
+}
+
+interface Piece extends Segment {
+  breakAfter: "line" | "page" | null;
+}
+
+function systemHeight(score: Score, segs: Segment[]): number {
+  const inSys = (m: number, u: number) => segs.some((s) => s.m === m && u >= s.u0 && u < s.u1);
+  let h = 22; // rangée supérieure
+  if (score.chords.some((c) => inSys(c.m, c.u))) h += 20;
+  for (const v of score.voices) {
+    h += 27;
+    const marks = segs.some((s) => v.measures[s.m]?.units.slice(s.u0, s.u1).some((u) => u.hasMarks));
+    if (marks) h += 13;
+  }
+  for (const [, map] of score.lyrics.perVoice) {
+    if ([...map.keys()].some((k) => inSys(+k.split(":")[0], +k.split(":")[1]))) h += 21;
+  }
+  for (const map of score.lyrics.common) {
+    if ([...map.keys()].some((k) => inSys(+k.split(":")[0], +k.split(":")[1]))) h += 23;
+  }
+  return h + 30;
+}
+
+export function layoutScore(
+  score: Score,
+  opts: { width: number; pageHeight?: number; firstPageOffset?: number },
+): PageLayout[] {
+  const pieces: Piece[] = [];
+  for (let m = 0; m < score.measureCount; m++) {
+    const n = score.unitsPerMeasure[m];
+    const cuts = [
+      ...new Set(score.breaks.filter((b) => b.m === m && b.u > 0 && b.u < n).map((b) => b.u)),
+    ].sort((a, b) => a - b);
+    const bounds = [0, ...cuts, n];
+    for (let i = 0; i < bounds.length - 1; i++) {
+      const u0 = bounds[i];
+      const u1 = bounds[i + 1];
+      const bk =
+        u1 < n
+          ? score.breaks.find((b) => b.m === m && b.u === u1)
+          : score.breaks.find((b) => b.m === m + 1 && b.u === 0);
+      pieces.push({ m, u0, u1, breakAfter: bk ? bk.kind : null });
+    }
+  }
+
+  const avail = opts.width - LABEL_PX;
+  const systems: { segs: Segment[]; fill: number; pageAfter: boolean }[] = [];
+  let cur: Segment[] = [];
+  let w = 0;
+  const pushSys = (pageAfter = false) => {
+    if (cur.length) systems.push({ segs: cur, fill: w / avail, pageAfter });
+    cur = [];
+    w = 0;
+  };
+  for (const p of pieces) {
+    let pw = 0;
+    for (let u = p.u0; u < p.u1; u++) pw += unitWidth(score, p.m, u) + (u > p.u0 ? SEP_PX : 0);
+    if (p.u1 === score.unitsPerMeasure[p.m]) pw += BAR_PX;
+    if (cur.length && w + pw > avail) pushSys();
+    if (!cur.length && (p.u0 > 0 || score.voices.some((v) => v.measures[p.m]?.leadingColon))) pw += SEP_PX;
+    cur.push({ m: p.m, u0: p.u0, u1: p.u1 });
+    w += pw;
+    if (p.breakAfter) pushSys(p.breakAfter === "page");
+  }
+  pushSys();
+
+  const out: SystemLayout[] = systems.map((s, i) => ({
+    segments: s.segs,
+    stretch: !(i === systems.length - 1 && s.fill < 0.7) && s.fill > 0.45,
+    height: systemHeight(score, s.segs),
+  }));
+
+  if (!opts.pageHeight) return [{ systems: out }];
+
+  const pages: PageLayout[] = [{ systems: [] }];
+  let used = opts.firstPageOffset ?? 0;
+  out.forEach((sys, i) => {
+    if (used + sys.height > opts.pageHeight! && pages[pages.length - 1].systems.length) {
+      pages.push({ systems: [] });
+      used = 0;
+    }
+    pages[pages.length - 1].systems.push(sys);
+    used += sys.height;
+    if (systems[i].pageAfter && i < out.length - 1) {
+      pages.push({ systems: [] });
+      used = 0;
+    }
+  });
+  return pages;
+}
