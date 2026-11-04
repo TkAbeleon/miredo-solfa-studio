@@ -359,3 +359,20 @@ mesure: 2/4
 > Autres questions ouvertes : la plage autorisée des déplacements d'octave (le moteur accepte un
 > seul chiffre, 0 à 9), les espaces entre la note et son suffixe (refusés), et le lien entre
 > l'octave de référence et une hauteur absolue (provisoirement : `d` en octave 4).
+
+
+## Représentation numérique continue des hauteurs
+
+**Statut : Validé dans ConceptionMireDo (2026-11-04).**
+
+Les notes sont représentées sur un axe chromatique entier continu : **ℤ = {…, -2, -1, 0, 1, 2, …}**. La référence vaut `0`, chaque demi-ton vers l'aigu ajoute `1` et chaque demi-ton vers le grave soustrait `1`. Il n'existe pas de borne théorique à cet axe.
+
+L'éditeur interprète les graphies Sol-fa saisies par le compositeur selon les règles de conception et calcule leur équivalent numérique. Les autres composants exploitent cette valeur calculée au lieu de réinterpréter indépendamment les graphies. La graphie écrite originale reste conservée : la coordonnée numérique ne remplace pas l'orthographe Sol-fa.
+
+Le passage d'une octave à la suivante poursuit le même axe par pas de douze demi-tons ; les octaves ne forment donc pas des classes de valeurs cycliques dans cette représentation.
+
+### Référence de portée par voix
+
+Chaque voix possède une référence numérique de portée, distincte de son nom et de sa tessiture : `0` correspond à la clé de Sol, `-1` à la clé de Fa, et les autres entiers suivent la même logique de position. En SATB par défaut, S et A utilisent `0`, T et B utilisent `-1`. Cette référence détermine le placement de `0` sur la portée ; elle ne doit pas être confondue avec la coordonnée chromatique d'une note ni avec la référence tonale de la partition.
+
+**Conséquence pour l'architecture :** le modèle d'exécution doit distinguer au minimum la graphie saisie, l'équivalent numérique calculé et les références contextuelles nécessaires. La grammaire `.mrd` et le schéma JSON natif restent des sujets distincts ; cette décision ne les fige pas.
