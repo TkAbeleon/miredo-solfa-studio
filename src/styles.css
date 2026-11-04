@@ -158,9 +158,9 @@
 
   .mrd-system {
     display: grid;
-    align-items: center;
-    margin-bottom: 18px;
-    font-size: 17px;
+    align-items: stretch;
+    margin-bottom: 16px;
+    font-size: 16px;
     line-height: 1;
   }
   .mrd-cell {
@@ -171,11 +171,29 @@
     min-height: 27px;
   }
   .mrd-cell.has-marks {
-    padding-top: 13px;
+    padding-top: 15px;
   }
   .mrd-unit {
-    padding: 0 6px;
+    padding: 0;
     justify-content: flex-start;
+  }
+  .mrd-pad {
+    align-self: stretch;
+    width: 5px;
+    flex: none;
+  }
+  .mrd-fill {
+    align-self: stretch;
+    flex: 1 1 4px;
+    min-width: 4px;
+  }
+  .mrd-grp {
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+  }
+  .ulb {
+    background: linear-gradient(var(--ink), var(--ink)) left bottom 3px / 100% 1.2px no-repeat;
   }
   .mrd-unit.is-playing {
     background: var(--playing);
@@ -286,26 +304,10 @@
   .mrd-sub {
     padding: 0 0.5px;
   }
-  .mrd-ul {
-    text-decoration: underline;
-    text-decoration-thickness: 1.2px;
-    text-underline-offset: 4px;
-    text-decoration-skip-ink: none;
-  }
-  .mrd-cell.ul-full::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 3px;
-    height: 1.2px;
-    background: var(--ink);
-  }
   .mrd-marks {
     position: absolute;
-    bottom: calc(100% - 2px);
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: calc(100% - 1px);
+    left: 0;
     display: flex;
     gap: 3px;
     align-items: flex-end;
@@ -329,6 +331,7 @@
   .mrd-tuplet {
     position: relative;
     display: inline-flex;
+    align-self: center;
   }
   .mrd-tuplet svg {
     position: absolute;

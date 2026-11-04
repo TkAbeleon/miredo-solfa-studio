@@ -269,9 +269,10 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
       const voice = score.voices[row.v]!;
       const measure = voice.measures[col.m];
       if (!measure) return;
+      const rowMarks = sysHasMarks(score, sys, row.v);
       if (col.k === "lead") {
         cells.push(
-          <div key={key} className="mrd-cell mrd-sep" style={style}>
+          <div key={key} className={cn("mrd-cell mrd-sep", rowMarks && "has-marks")} style={style}>
             :
           </div>,
         );
@@ -280,9 +281,8 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
       const unit = measure.units[col.u];
       if (col.k === "sep") {
         if (!unit) return;
-        const marks = measure.units.some((x) => x.hasMarks) && sysHasMarks(score, sys, row.v);
         cells.push(
-          <div key={key} className={cn("mrd-cell mrd-sep", unit.sepUl && "ul-full", marks && "has-marks")} style={style}>
+          <div key={key} className={cn("mrd-cell mrd-sep", unit.sepUl && "ulb", rowMarks && "has-marks")} style={style}>
             {unit.sepBefore === "!" ? <span className="mrd-half" /> : ":"}
           </div>,
         );
@@ -295,8 +295,9 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
             unit={unit}
             ctx={ctx}
             style={style}
-            marks={sysHasMarks(score, sys, row.v)}
+            marks={rowMarks}
             playing={ctx.playingMeasure === col.m}
+            nextSepUl={!!measure.units[col.u + 1]?.sepUl}
           />,
         );
       }
@@ -406,8 +407,22 @@ function LyricCell({ arr, style, small }: { arr: { start: number; text: string }
   );
 }
 
-function UnitCell({ unit, ctx, style, marks, playing }: { unit: Unit | undefined; ctx: Ctx; style: React.CSSProperties; marks: boolean; playing: boolean }) {
-  if (!unit) return <div className="mrd-cell mrd-unit" style={style} />;
+function UnitCell({
+  unit,
+  ctx,
+  style,
+  marks,
+  playing,
+  nextSepUl,
+}: {
+  unit: Unit | undefined;
+  ctx: Ctx;
+  style: React.CSSProperties;
+  marks: boolean;
+  playing: boolean;
+  nextSepUl: boolean;
+}) {
+  if (!unit) return <div className={cn("mrd-cell mrd-unit", marks && "has-marks")} style={style} />;
   const h = ctx.score.header;
   const tuplet = unit.tuplet && h.tuplets === "courbe";
   const toks = tuplet ? unit.toks.filter((t) => t.t === "note" || t.t === "hold") : unit.toks;
@@ -415,21 +430,24 @@ function UnitCell({ unit, ctx, style, marks, playing }: { unit: Unit | undefined
   // regrouper les jetons soulignés consécutifs (soulignement partiel)
   const groups: { ul: boolean; toks: UnitTok[] }[] = [];
   for (const t of toks) {
-    const ul = t.ul && !unit.ulFull;
+    const ul = t.ul;
     const last = groups[groups.length - 1];
     if (last && last.ul === ul) last.toks.push(t);
     else groups.push({ ul, toks: [t] });
   }
   const content = groups.map((g, gi) => (
-    <span key={gi} className={cn(g.ul && "mrd-ul")}>
+    <span key={gi} className={cn("mrd-grp", g.ul && "ulb")}>
       {g.toks.map((t, i) => (
         <TokView key={i} t={t} ctx={ctx} />
       ))}
     </span>
   ));
 
+  const firstUl = !!toks[0]?.ul;
+  const lastUl = !!toks[toks.length - 1]?.ul;
   return (
-    <div className={cn("mrd-cell mrd-unit", unit.ulFull && "ul-full", marks && "has-marks", playing && "is-playing")} style={style}>
+    <div className={cn("mrd-cell mrd-unit", marks && "has-marks", playing && "is-playing")} style={style}>
+      <span className={cn("mrd-pad", unit.sepUl && firstUl && "ulb")} />
       {tuplet ? (
         <span className="mrd-tuplet" title={unit.tuplet === 3 ? "Triolet" : "Sextolet"}>
           <svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden>
@@ -441,6 +459,7 @@ function UnitCell({ unit, ctx, style, marks, playing }: { unit: Unit | undefined
       ) : (
         content
       )}
+      <span className={cn("mrd-fill", nextSepUl && lastUl && "ulb")} />
     </div>
   );
 }
