@@ -20,7 +20,7 @@ export function systemStartsOffbeat(score: Score, first: Segment): boolean {
   if (score.voices.some((v) => v.measures[first.m]?.leadingColon)) return true;
 
   const hasSoundAtStart = score.voices.some((v) =>
-    v.measures[first.m]?.units[first.u0]?.slots.some((slot) => slot.start === 0 && slot.kind !== "rest"),
+    v.measures[first.m]?.units[first.u0]?.slots.some((slot) => slot.start === 0 && slot.kind === "note"),
   );
   return !hasSoundAtStart;
 }
