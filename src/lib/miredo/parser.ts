@@ -195,7 +195,7 @@ export function parseDirective(raw: string): Directive {
   const s = raw.trim();
   const low = s.toLowerCase();
   let m: RegExpExecArray | null;
-  if ((m = /^ton\s*[:=]\s*(.+)$/i.exec(s))) return { kind: "key", key: m[1].trim() };
+  if ((m = /^ton\s*[:=]\s*(.+)$/i.exec(s))) return { kind: "key", key: m[1]!.trim() };
   if ((m = /^(?:segno|s)(?:\s*[:_ ]\s*(\w+))?$/i.exec(s)) && (low.startsWith("segno") || /^s_\w+$/i.test(s)))
     return { kind: "segno", id: m[1] ?? "1" };
   if ((m = /^d\.?\s?s\.?(?:\s*[:_]?\s*(\d+))?(?:\s+al\s+(fine|coda))?$/i.exec(s)))
@@ -252,12 +252,12 @@ export function parseScore(text: string): Score {
     const vm = /^\[([^\]]+)\]\s?(.*)$/.exec(t);
     if (vm) {
       inBody = true;
-      voiceLines.push({ label: vm[1].trim(), body: vm[2], line });
+      voiceLines.push({ label: vm[1]!.trim(), body: vm[2] ?? "", line });
       return;
     }
     const hm = /^([\p{L}-]+)\s*:\s*(.*)$/u.exec(t);
     if (hm && !inBody) {
-      raw[hm[1].toLowerCase()] = { value: hm[2].trim(), line };
+      raw[hm[1]!.toLowerCase()] = { value: hm[2]!.trim(), line };
       return;
     }
     diagnostics.push({ level: "warning", line, message: `Ligne ignorée : « ${t.slice(0, 40)} » (attendu « [Voix] … » ou « clé: valeur »).` });
@@ -268,15 +268,15 @@ export function parseScore(text: string): Score {
   // ---- En-tête
   let key = parseKey(hv("ton", "C"));
   if (!key) {
-    diagnostics.push({ level: "error", line: raw.ton?.line ?? 1, message: `Tonalité de référence invalide « ${hv("ton")} » (attendu A–G suivi éventuellement de b ou #).` });
+    diagnostics.push({ level: "error", line: raw["ton"]?.line ?? 1, message: `Tonalité de référence invalide « ${hv("ton")} » (attendu A–G suivi éventuellement de b ou #).` });
     key = parseKey("C")!;
   }
   const tm = /^(\d+)\s*\/\s*(\d+)$/.exec(hv("mesure", "4/4"));
-  const time = tm ? { num: +tm[1], den: +tm[2], label: `${tm[1]}/${tm[2]}` } : { num: 4, den: 4, label: "4/4" };
-  if (!tm) diagnostics.push({ level: "error", line: raw.mesure?.line ?? 1, message: "Signature invalide (attendu par ex. 4/4, 6/8)." });
+  const time = tm ? { num: +tm[1]!, den: +tm[2]!, label: `${tm[1]}/${tm[2]}` } : { num: 4, den: 4, label: "4/4" };
+  if (!tm) diagnostics.push({ level: "error", line: raw["mesure"]?.line ?? 1, message: "Signature invalide (attendu par ex. 4/4, 6/8)." });
 
   const dm = /^(\d+)\s*\/\s*(\d+)$/.exec(hv("disposition"));
-  const dispNum = dm ? +dm[1] : time.num;
+  const dispNum = dm ? +dm[1]! : time.num;
   const g = groupsFor(dispNum);
   const disposition = {
     label: dm ? `${dm[1]}/${dm[2]}` : time.label,
@@ -286,16 +286,16 @@ export function parseScore(text: string): Score {
     provisional: g.provisional,
   };
   if (g.provisional)
-    diagnostics.push({ level: "info", line: raw.mesure?.line ?? 1, message: `Disposition de ${dispNum} unités non validée par la conception : MireDo utilise des « : » sans « ! » (provisoire).` });
+    diagnostics.push({ level: "info", line: raw["mesure"]?.line ?? 1, message: `Disposition de ${dispNum} unités non validée par la conception : MireDo utilise des « : » sans « ! » (provisoire).` });
 
   const voicesDecl: { name: string; ref: number }[] = [];
-  if (raw.voix) {
-    for (const part of raw.voix.value.split(/[;,]/)) {
+  if (raw["voix"]) {
+    for (const part of raw["voix"].value.split(/[;,]/)) {
       const p = part.trim();
       if (!p) continue;
       const [n, r] = p.split("=").map((x) => x.trim());
       const ref = r === undefined ? 0 : Number(r.replace("+", ""));
-      voicesDecl.push({ name: n, ref: Number.isFinite(ref) ? ref : 0 });
+      voicesDecl.push({ name: n ?? "", ref: Number.isFinite(ref) ? ref : 0 });
     }
   }
 
@@ -335,7 +335,7 @@ export function parseScore(text: string): Score {
     if (vi < 0) {
       voices.push({ name: vl.label, ref: 0, measures: [] });
       vi = voices.length - 1;
-      if (raw.voix)
+      if (raw["voix"])
         diagnostics.push({ level: "info", line: vl.line, message: `Voix « ${vl.label} » non déclarée dans « voix: » — ajoutée avec la référence de portée 0.` });
     }
     if (!bodies.has(vi)) bodies.set(vi, []);
@@ -400,7 +400,7 @@ export function parseScore(text: string): Score {
         st.cur.endBar = bar;
         st.measures.push(st.cur);
       } else if (bar === "||" && st.measures.length) {
-        st.measures[st.measures.length - 1].endBar = "||";
+        st.measures[st.measures.length - 1]!.endBar = "||";
       }
       st.cur = newMeasure(st.unitLine);
       st.sepBefore = "start";
@@ -537,7 +537,7 @@ export function parseScore(text: string): Score {
       st.cur.endBar = st.sepBefore === "||" ? "||" : st.cur.endBar;
       st.measures.push(st.cur);
     } else if (st.sepBefore === "||" && st.measures.length) {
-      st.measures[st.measures.length - 1].endBar = "||";
+      st.measures[st.measures.length - 1]!.endBar = "||";
     }
     if (st.ul) diagnostics.push({ level: "warning", line: chunks.at(-1)?.line ?? 1, message: `${voice.name} : soulignement « [ » non refermé.` });
 
@@ -567,7 +567,7 @@ export function parseScore(text: string): Score {
   });
 
   const first = voices.find((v) => v.measures.length)?.measures[0];
-  const hasPickup = !!first && (first.leadingColon || unitsPerMeasure[0] < expected) && measureCount > 1;
+  const hasPickup = !!first && (first.leadingColon || unitsPerMeasure[0]! < expected) && measureCount > 1;
 
   // ---- Validation des mesures
   const boundaries = new Set<number>();
@@ -579,7 +579,7 @@ export function parseScore(text: string): Score {
 
   for (let m = 0; m < measureCount; m++) {
     const n = unitsPerMeasure[m];
-    const line = voices.find((v) => v.measures[m])?.measures[m].line ?? 1;
+    const line = voices.find((v) => v.measures[m])?.measures[m]?.line ?? 1;
     const num = m + (hasPickup ? 0 : 1);
     const isPickup = m === 0 && hasPickup;
     const isLast = m === measureCount - 1;
@@ -595,7 +595,7 @@ export function parseScore(text: string): Score {
       if (!ms || ms.units.length !== expected) return;
       for (let u = 1; u < ms.units.length; u++) {
         const want = boundaries.has(u) ? "!" : ":";
-        const got = ms.units[u].sepBefore;
+        const got = ms.units[u]!.sepBefore;
         if (got !== "||" && got !== want) {
           diagnostics.push({ level: "info", line: ms.line, message: `${v.name}, mesure ${num} : « ${got} » écrit avant l'unité ${u + 1}, la disposition habituelle place « ${want} ».` });
           break;
@@ -703,7 +703,7 @@ export function parseScore(text: string): Score {
       const num = /^paroles\s+(\d+)/i.exec(ll.label)?.[1];
       const idx = num ? Number(num) - 1 : 0;
       while (common.length <= idx) common.push(new Map());
-      map = common[idx];
+      map = common[idx]!;
     }
     const onsets: { m: number; u: number; start: number }[] = [];
     voices[vi].measures.forEach((ms, m) =>
@@ -713,7 +713,7 @@ export function parseScore(text: string): Score {
     const used = new Set<string>();
     map.forEach((arr, k) => arr.forEach((l) => used.add(`${k}:${l.start}`)));
     let ptr = 0;
-    while (ptr < onsets.length && used.has(`${onsets[ptr].m}:${onsets[ptr].u}:${onsets[ptr].start}`)) ptr++;
+    while (ptr < onsets.length && used.has(`${onsets[ptr]!.m}:${onsets[ptr]!.u}:${onsets[ptr]!.start}`)) ptr++;
     const placedMeta = (map as LyricLine & { _ptr?: number })._ptr;
     if (placedMeta != null) ptr = Math.max(ptr, placedMeta);
     for (const tokRaw of ll.body.split(/\s+/)) {
@@ -740,8 +740,8 @@ export function parseScore(text: string): Score {
   }
 
   // ---- Groupes (paroles entre deux groupes de portées)
-  if (raw.groupes) {
-    header.groups = raw.groupes.value.split("/").map((gp) =>
+  if (raw["groupes"]) {
+    header.groups = raw["groupes"].value.split("/").map((gp) =>
       (gp.includes(",") ? gp.split(",") : gp.trim().split(/\s+/)).map((x) => x.trim()).filter(Boolean),
     );
   } else {
