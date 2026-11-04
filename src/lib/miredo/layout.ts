@@ -83,10 +83,17 @@ function systemHeight(score: Score, segs: Segment[]): number {
   return h + 20;
 }
 
+/** Largeurs mesurées dans le navigateur ("m:u", "sep", "bar", "label") ; à défaut, estimation. */
+export type Measured = Map<string, number>;
+
 export function layoutScore(
   score: Score,
-  opts: { width: number; pageHeight?: number; firstPageOffset?: number },
+  opts: { width: number; pageHeight?: number; firstPageOffset?: number; measured?: Measured | null },
 ): PageLayout[] {
+  const ms = opts.measured;
+  const UW = (m: number, u: number) => ms?.get(`${m}:${u}`) ?? unitWidth(score, m, u);
+  const SEP = ms?.get("sep") ?? SEP_PX;
+  const BAR = ms?.get("bar") ?? BAR_PX;
   const pieces: Piece[] = [];
   for (let m = 0; m < score.measureCount; m++) {
     const n = score.unitsPerMeasure[m] ?? 0;
@@ -105,7 +112,7 @@ export function layoutScore(
     }
   }
 
-  const avail = opts.width - labelWidth(score);
+  const avail = opts.width - (ms?.get("label") ?? labelWidth(score)) - 2;
   const systems: { segs: Segment[]; fill: number; pageAfter: boolean }[] = [];
   let cur: Segment[] = [];
   let w = 0;
@@ -116,10 +123,10 @@ export function layoutScore(
   };
   for (const p of pieces) {
     let pw = 0;
-    for (let u = p.u0; u < p.u1; u++) pw += unitWidth(score, p.m, u) + (u > p.u0 ? SEP_PX : 0);
-    if (p.u1 === score.unitsPerMeasure[p.m]) pw += BAR_PX;
+    for (let u = p.u0; u < p.u1; u++) pw += UW(p.m, u) + (u > p.u0 ? SEP : 0);
+    if (p.u1 === score.unitsPerMeasure[p.m]) pw += BAR;
     if (cur.length && w + pw > avail) pushSys();
-    if (!cur.length && (p.u0 > 0 || score.voices.some((v) => v.measures[p.m]?.leadingColon))) pw += SEP_PX;
+    if (!cur.length && (p.u0 > 0 || score.voices.some((v) => v.measures[p.m]?.leadingColon))) pw += SEP;
     cur.push({ m: p.m, u0: p.u0, u1: p.u1 });
     w += pw;
     if (p.breakAfter) pushSys(p.breakAfter === "page");

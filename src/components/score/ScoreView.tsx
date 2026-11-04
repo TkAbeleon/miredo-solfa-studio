@@ -1,8 +1,8 @@
-import { Fragment, useMemo, type ReactNode } from "react";
+import { Fragment, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import type { Directive, NoteTok, HoldTok, Score, Unit, UnitTok } from "@/lib/miredo/parser";
 import { displayMeasureNumber } from "@/lib/miredo/parser";
-import { layoutScore, type SystemLayout } from "@/lib/miredo/layout";
+import { layoutScore, type Measured, type SystemLayout } from "@/lib/miredo/layout";
 import type { KeyRef, Pitch } from "@/lib/miredo/pitch";
 import { parseKey } from "@/lib/miredo/pitch";
 
@@ -19,19 +19,34 @@ interface Props {
 }
 
 export function ScoreView({ score, variant = "pages", width = 640, selectedId, onSelect, playingMeasure }: Props) {
+  const [measured, setMeasured] = useState<{ score: Score; map: Measured } | null>(null);
+  const measureRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = measureRef.current;
+    if (!el) return;
+    const ref = el.querySelector<HTMLElement>("[data-ref]");
+    const scale = ref ? ref.getBoundingClientRect().width / 100 || 1 : 1;
+    const map: Measured = new Map();
+    el.querySelectorAll<HTMLElement>("[data-mu]").forEach((n) => map.set(n.dataset.mu!, n.getBoundingClientRect().width / scale));
+    setMeasured({ score, map });
+  }, [score]);
+  const map = measured?.score === score ? measured.map : null;
+
   const pages = useMemo(
     () =>
       variant === "pages"
-        ? layoutScore(score, { width: PAGE_INNER, pageHeight: PAGE_BODY, firstPageOffset: 120 })
-        : layoutScore(score, { width }),
-    [score, variant, width],
+        ? layoutScore(score, { width: PAGE_INNER, pageHeight: PAGE_BODY, firstPageOffset: 120, measured: map })
+        : layoutScore(score, { width, measured: map }),
+    [score, variant, width, map],
   );
   const ctx: Ctx = { score, selectedId: selectedId ?? null, onSelect, playingMeasure: playingMeasure ?? null };
   let sysCounter = 0;
+  const measurer = <Measurer score={score} innerRef={measureRef} />;
 
   if (variant === "inline") {
     return (
-      <div className="mrd-inline">
+      <div className="mrd-inline relative">
+        {measurer}
         {pages[0]?.systems.map((s, i) => (
           <SystemView key={i} sys={s} index={i} ctx={ctx} />
         ))}
@@ -40,7 +55,8 @@ export function ScoreView({ score, variant = "pages", width = 640, selectedId, o
   }
 
   return (
-    <div className="flex flex-col items-center gap-8">
+    <div className="relative flex flex-col items-center gap-8">
+      {measurer}
       {pages.map((page, pi) => (
         <div className="mrd-page" key={pi}>
           {pi === 0 && <TitleBlock score={score} />}
@@ -53,6 +69,55 @@ export function ScoreView({ score, variant = "pages", width = 640, selectedId, o
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/** Rendu invisible de chaque unité (toutes voix + paroles) pour mesurer sa largeur réelle. */
+function Measurer({ score, innerRef }: { score: Score; innerRef: React.RefObject<HTMLDivElement | null> }) {
+  const ctx: Ctx = { score, selectedId: null, playingMeasure: null };
+  const lines = [...score.lyrics.common, ...score.lyrics.perVoice.values()];
+  const cols: ReactNode[] = [];
+  for (let m = 0; m < score.measureCount; m++) {
+    for (let u = 0; u < (score.unitsPerMeasure[m] ?? 0); u++) {
+      const key = `${m}:${u}`;
+      const ch = score.chords.filter((c) => c.m === m && c.u === u);
+      cols.push(
+        <div key={key} data-mu={key} className="inline-grid align-top">
+          {score.voices.map((v, vi) => (
+            <UnitCell key={vi} unit={v.measures[m]?.units[u]} ctx={ctx} style={{}} marks={false} playing={false} nextSepUl={false} />
+          ))}
+          {lines.map((l, li) => (
+            <LyricCell key={`l${li}`} arr={l.get(key) ?? []} style={{}} small={false} />
+          ))}
+          {ch.length > 0 && (
+            <div className="mrd-cell mrd-chords mrd-unit">
+              {ch.map((c, i) => (
+                <span key={i}>{c.chord.written}</span>
+              ))}
+            </div>
+          )}
+        </div>,
+      );
+    }
+  }
+  const showNames = score.header.names !== "aucun";
+  return (
+    <div ref={innerRef} aria-hidden className="mrd-system pointer-events-none absolute left-0 top-0 block h-0 overflow-hidden" style={{ visibility: "hidden" }}>
+      <div data-ref style={{ width: 100 }} />
+      <div className="whitespace-nowrap">{cols}</div>
+      <div data-mu="sep" className="mrd-cell mrd-sep inline-flex">:</div>
+      <div data-mu="bar" className="mrd-bar inline-flex">
+        <i />
+      </div>
+      <div data-mu="label" className="inline-flex">
+        <div className="mrd-cell mrd-label">
+          {showNames && <span>{score.voices.reduce((a, v) => (v.name.length > a.length ? v.name : a), "")}</span>}
+          {showNames && <span className="mrd-ref">−1</span>}
+          {showNames && score.header.clefs === "classique" && <span className="mrd-clef">𝄢</span>}
+        </div>
+        {score.voices.length > 1 && <div className="mrd-brace" />}
+      </div>
     </div>
   );
 }
