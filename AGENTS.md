@@ -14,3 +14,4 @@
 - Written Sol-fa spelling is never rewritten; absolute pitch is computed separately (`NoteInfo`). Why: core MireDo rule (no enharmonic normalization).
 - Headers, `{…}` directives, `<…>` chords, `[ ]` underline and `//` `///` breaks are a provisional demo syntax, not validated MireDo grammar; keep them labelled as such in UI copy.
 - Line breaking uses real DOM widths from the hidden `Measurer` in `ScoreView`, with estimates in `layout.ts` only as SSR fallback. Why: estimates misjudge proportional fonts.
+- Developer docs live as Markdown in `src/content/regles/NN-slug.md`, loaded with `import.meta.glob` in `src/lib/docs.ts` and rendered at `/regles/$slug`; fenced ```mrd``` / ```mrd-timing``` / ```mrd-pitch``` / ```mrd-path``` blocks render live previews. Why: docs are the single source and examples run through the real engine. Keep code excerpts in sync when changing the engine.
