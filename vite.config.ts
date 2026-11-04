@@ -14,6 +14,12 @@ export default defineConfig({
       // CORS ouvert à toutes les origines, comme demandé.
       cors: true,
     },
+    preview: {
+      // Le serveur preview hérite normalement de server.allowedHosts et server.cors.
+      // Les valeurs sont répétées ici pour garder le comportement explicite sur Render.
+      allowedHosts: ["miredo-solfa-studio.onrender.com"],
+      cors: true,
+    },
   },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
