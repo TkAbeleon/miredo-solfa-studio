@@ -18,25 +18,32 @@ export interface PageLayout {
   systems: SystemLayout[];
 }
 
-const NOTE_PX = 10.2;
-const LYR_PX = 8.2;
-const UNIT_PAD = 14;
-const SEP_PX = 14;
-const BAR_PX = 14;
-export const LABEL_PX = 46;
+const EM = 16; // taille de police de la partition
+const LYR_PX = 6.9;
+const UNIT_PAD = 9;
+const SEP_PX = 10;
+const BAR_PX = 12;
+
+const charW = (s: string) =>
+  [...s].reduce((a, c) => a + (/[.,'’:;!|]/.test(c) ? 0.28 : c === "–" || c === "-" ? 0.5 : /[mw]/.test(c) ? 0.78 : 0.48), 0) * EM;
+
+export function labelWidth(score: Score): number {
+  if (score.voices.length < 2) return 4;
+  return score.header.names === "aucun" ? 18 : 18 + Math.max(...score.voices.map((v) => v.name.length)) * 7 + 16;
+}
 
 export function unitWidth(score: Score, m: number, u: number): number {
   let max = 0;
   for (const v of score.voices) {
     const unit = v.measures[m]?.units[u];
     if (!unit) continue;
-    let chars = 0;
+    let px = 0;
     for (const t of unit.toks) {
-      if (t.t === "note") chars += t.p.base.length + t.p.vowel.length + (t.p.octave ? 0.6 : 0) + (t.trans ? 1 : 0) + 0.25;
-      else if (t.t === "hold") chars += 1.1;
-      else if (!(unit.tuplet && score.header.tuplets === "courbe")) chars += 0.45;
+      if (t.t === "note") px += charW(t.p.base + t.p.vowel) + (t.p.octave ? 0.35 * EM : 0) + (t.trans ? 0.45 * EM : 0) + 2;
+      else if (t.t === "hold") px += 0.6 * EM;
+      else if (!(unit.tuplet && score.header.tuplets === "courbe")) px += 0.3 * EM;
     }
-    max = Math.max(max, chars * NOTE_PX);
+    max = Math.max(max, px);
   }
   const key = `${m}:${u}`;
   const lines = [...score.lyrics.common, ...score.lyrics.perVoice.values()];
@@ -60,12 +67,12 @@ const mu = (k: string): [number, number] => {
 
 function systemHeight(score: Score, segs: Segment[]): number {
   const inSys = (m: number, u: number) => segs.some((s) => s.m === m && u >= s.u0 && u < s.u1);
-  let h = 22; // rangée supérieure
+  let h = 20; // rangée supérieure
   if (score.chords.some((c) => inSys(c.m, c.u))) h += 20;
   for (const v of score.voices) {
-    h += 27;
+    h += 26;
     const marks = segs.some((s) => v.measures[s.m]?.units.slice(s.u0, s.u1).some((u) => u.hasMarks));
-    if (marks) h += 13;
+    if (marks) h += 15;
   }
   for (const [, map] of score.lyrics.perVoice) {
     if ([...map.keys()].some((k) => inSys(...mu(k)))) h += 21;
@@ -73,7 +80,7 @@ function systemHeight(score: Score, segs: Segment[]): number {
   for (const map of score.lyrics.common) {
     if ([...map.keys()].some((k) => inSys(...mu(k)))) h += 23;
   }
-  return h + 30;
+  return h + 20;
 }
 
 export function layoutScore(
@@ -98,7 +105,7 @@ export function layoutScore(
     }
   }
 
-  const avail = opts.width - LABEL_PX;
+  const avail = opts.width - labelWidth(score);
   const systems: { segs: Segment[]; fill: number; pageAfter: boolean }[] = [];
   let cur: Segment[] = [];
   let w = 0;
