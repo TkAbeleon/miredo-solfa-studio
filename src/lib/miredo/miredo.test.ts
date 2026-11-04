@@ -94,19 +94,19 @@ describe("structure", () => {
 
 describe("début et fin des systèmes", () => {
   it("reconnaît une anacrouse qui commence par un silence", () => {
-    const s = parseScore("mesure: 3/4\\n[V] .r|d:d:d|");
+    const s = parseScore("mesure: 3/4\n[V] .r|d:d:d|");
     const first = { m: 0, u0: 0, u1: s.unitsPerMeasure[0]! };
     expect(systemStartsOffbeat(s, first)).toBe(true);
   });
 
   it("ne traite pas un début normal sur le premier temps comme une anacrouse", () => {
-    const s = parseScore("mesure: 3/4\\n[V] |d:d:d|");
+    const s = parseScore("mesure: 3/4\n[V] |d:d:d|");
     const first = { m: 0, u0: 0, u1: s.unitsPerMeasure[0]! };
     expect(systemStartsOffbeat(s, first)).toBe(false);
   });
 
   it("ferme un système coupé au milieu d'une mesure et conserve son séparateur", () => {
-    const s = parseScore("mesure: 4/4\\n[V] |d:d!m//:f|");
+    const s = parseScore("mesure: 4/4\n[V] |d:d!m//:f|");
     const systems = layoutScore(s, { width: 1000 })[0]!.systems;
 
     expect(systems).toHaveLength(2);
@@ -119,10 +119,20 @@ describe("début et fin des systèmes", () => {
   });
 
   it("préserve un séparateur ! au début d'une reprise en milieu de mesure", () => {
-    const s = parseScore("mesure: 4/4\\n[V] |d:d:m//!f|");
+    const s = parseScore("mesure: 4/4\n[V] |d:d:m//!f|");
     const systems = layoutScore(s, { width: 1000 })[0]!.systems;
     const nextSegment = systems[1]!.segments[0]!;
     expect(s.voices[0]!.measures[nextSegment.m]!.units[nextSegment.u0]!.sepBefore).toBe("!");
+  });
+
+  it("sépare la barre de fermeture de ligne d'une double barre au début de la ligne suivante", () => {
+    const s = parseScore("mesure: 4/4\n[V] |d:d:m//||f|");
+    const systems = layoutScore(s, { width: 1000 })[0]!.systems;
+    const firstSegment = systems[0]!.segments.at(-1)!;
+    const nextSegment = systems[1]!.segments[0]!;
+
+    expect(systemSegmentEndBar(s, firstSegment, true)).toBe("|");
+    expect(s.voices[0]!.measures[nextSegment.m]!.units[nextSegment.u0]!.sepBefore).toBe("||");
   });
 });
 
