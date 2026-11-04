@@ -272,3 +272,90 @@ ton: C
 mesure: 4/4
 [V] |di:di!di:f|
 ```
+
+---
+
+## 8. Pas de signe accidentel autonome, pas de bécarre
+
+**Statut : Validé.** Dans les notes Sol-fa, les altérations s'écrivent par la syllabe (`di`, `te`…).
+Les symboles `♮`, `♯`, `♭` ne sont pas des signes de notes Sol-fa, et il n'existe **pas de bécarre**.
+Les lettres `b` et `#` servent seulement aux étiquettes de tonalité (`ton: Ab`).
+
+### Implémentation
+
+`NOTE_RE` n'accepte ni `#`, ni `b` après une note, ni `♯ ♭ ♮`. Ces caractères donnent l'erreur
+« Caractère inattendu ». `b` et `#` ne sont lus que par `parseKey` (en-tête `ton:` et directive
+`{ton:…}`) et par les accords `<…>`.
+
+```mrd
+noms: aucun
+mesure: 2/4
+[V] |d#:r♭|
+```
+
+> Question ouverte : `b` et `#` pourront-ils un jour s'utiliser dans l'écriture des notes Sol-fa ?
+> Tant que ce n'est pas tranché, le moteur les refuse.
+
+---
+
+## 9. Préférence pour le bémol
+
+**Statut : Validé.** Quand un choix d'orthographe est nécessaire, MireDo privilégie le bémol (`b`).
+
+Deux cas existent dans le code :
+
+- `spellPitch` orthographie selon le **degré écrit** (`di` en C → C♯, `ra` en C → D♭). Il n'y a pas de
+  choix à faire, donc la préférence ne s'applique pas.
+- `midiName` (hauteur jouée sans degré, dans l'inspecteur) n'a pas de degré : il utilise **les
+  bémols**.
+
+```ts
+export function midiName(midi: number): string {
+  const names = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"];
+  return `${names[((midi % 12) + 12) % 12]}${Math.floor(midi / 12) - 1}`;
+}
+```
+
+---
+
+## 10. Formes courantes et formes rares
+
+**Statut : Validé.** Toutes les formes valides sont acceptées. Les formes courantes
+(`d di r ri m mi f fi s l te ti to`) sont privilégiées dans l'affichage pédagogique, l'aide à la
+saisie et les suggestions. C'est une préférence d'interface, **pas** une restriction de grammaire.
+
+**État : partiel.** `COMMON_FORMS` existe dans `pitch.ts`, mais l'éditeur n'a pas encore de
+suggestions de saisie. La validation ne regarde jamais la fréquence d'une forme : une forme rare
+(`ro`, `lo`, `me`) est analysée et conservée sans avertissement.
+
+> Question ouverte : les suggestions doivent-elles proposer les formes rares à la demande, ou
+> seulement les accepter quand elles sont saisies ?
+
+---
+
+## 11. Casse, alias et saisie traditionnelle des octaves
+
+**Statut : À clarifier.** La conception se demande s'il faut accepter des alias ou des variantes de
+casse.
+
+**Lecture actuelle (provisoire) :**
+
+| Saisie | Résultat |
+|---|---|
+| `D`, `Do`, `Sol` | refusé (« Caractère inattendu ») : seules les minuscules `d r m f s l t` sont des notes |
+| `do` | `d` + voyelle `o` = **Do abaissé**, pas un alias de `d` |
+| `d'` | refusé : l'apostrophe n'est pas une saisie d'octave |
+| `d,` | `d` suivi d'une **subdivision** `,`, pas un `d` grave |
+
+La saisie numérique (`d1`, `d_1`) est la seule acceptée, comme le veut la conception. La forme
+apostrophe/virgule est uniquement un **rendu** (`octaves: traditionnel`).
+
+```mrd-timing
+noms: aucun
+mesure: 2/4
+[V] |do:d,|
+```
+
+> Autres questions ouvertes : la plage autorisée des déplacements d'octave (le moteur accepte un
+> seul chiffre, 0 à 9), les espaces entre la note et son suffixe (refusés), et le lien entre
+> l'octave de référence et une hauteur absolue (provisoirement : `d` en octave 4).
