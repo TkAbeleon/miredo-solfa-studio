@@ -7,6 +7,14 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  vite: {
+    server: {
+      // Domaine Render utilisé par le Studio : autoriser ce host explicitement.
+      allowedHosts: ["miredo-solfa-studio.onrender.com"],
+      // CORS ouvert à toutes les origines, comme demandé.
+      cors: true,
+    },
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
