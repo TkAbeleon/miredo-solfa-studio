@@ -77,7 +77,7 @@ son état dans le code.
 | Clés classiques en mode avancé (Sol, Fa, Ut) | Voix § 7 | Partiel (Ut non nommée) |
 | Nom, référence et registre séparés | Voix § 8 | Implémenté |
 | Barres alignées à travers les portées | Voix § 2 | Implémenté |
-| Crochet par défaut, peut être masqué | Voix § 2 | Implémenté |
+| Crochet affiché par défaut ; s'il est masqué, barre initiale uniquement sur un début normal, séparateur conservé en anacrouse / reprise, barre de fermeture à chaque fin de système | Voix § 2 | Implémenté |
 | Mesure entière reportée ; retour manuel même en milieu de mesure | Mise en page | Implémenté (syntaxe provisoire) |
 | Sauts de page automatiques et manuels | Mise en page | Implémenté |
 | Paroles uniques sous toutes les portées | Voix § 3 | Implémenté |
