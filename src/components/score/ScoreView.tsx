@@ -32,7 +32,7 @@ export function ScoreView({ score, variant = "pages", width = 640, selectedId, o
   if (variant === "inline") {
     return (
       <div className="mrd-inline">
-        {pages[0].systems.map((s, i) => (
+        {pages[0]?.systems.map((s, i) => (
           <SystemView key={i} sys={s} index={i} ctx={ctx} />
         ))}
       </div>
@@ -101,7 +101,7 @@ function TitleBlock({ score }: { score: Score }) {
 interface Ctx {
   score: Score;
   selectedId: string | null;
-  onSelect?: (id: string) => void;
+  onSelect?: ((id: string) => void) | undefined;
   playingMeasure: number | null;
 }
 
@@ -127,7 +127,7 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
 
   // ---- colonnes
   const cols: Col[] = [{ k: "label" }, { k: "brace" }];
-  const first = sys.segments[0];
+  const first = sys.segments[0]!;
   if (first.u0 > 0 || score.voices.some((v) => v.measures[first.m]?.leadingColon))
     cols.push({ k: "lead", m: first.m, u: first.u0 });
   for (const seg of sys.segments) {
@@ -151,7 +151,7 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
   rows.push({ k: "top" });
   const commonLines = score.lyrics.common
     .map((map, line) => ({ map, line }))
-    .filter(({ map }) => [...map.keys()].some((k) => inSys(+k.split(":")[0], +k.split(":")[1])));
+    .filter(({ map }) => [...map.keys()].some((k) => inSys(...mu(k))));
   const groups: number[][] =
     h.lyricsMode === "entre"
       ? (() => {
@@ -165,7 +165,7 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
     for (const v of g) {
       rows.push({ k: "voice", v, group: gi });
       const pv = score.lyrics.perVoice.get(v);
-      if (pv && [...pv.keys()].some((k) => inSys(+k.split(":")[0], +k.split(":")[1]))) rows.push({ k: "vlyr", v, group: gi });
+      if (pv && [...pv.keys()].some((k) => inSys(...mu(k)))) rows.push({ k: "vlyr", v, group: gi });
     }
     if (h.lyricsMode === "entre" && gi === 0 && groups.length > 1) commonLines.forEach(({ line }) => rows.push({ k: "lyr", line }));
   });
@@ -173,10 +173,10 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
 
   const groupSpan = (gi: number): [number, number] => {
     const idx = rows.map((r, i) => ((r.k === "voice" || r.k === "vlyr") && r.group === gi ? i : -1)).filter((i) => i >= 0);
-    return [idx[0] + 1, idx[idx.length - 1] + 2];
+    return [(idx[0] ?? 0) + 1, (idx[idx.length - 1] ?? 0) + 2];
   };
   const voiceRowIdx = rows.map((r, i) => (r.k === "voice" ? i : -1)).filter((i) => i >= 0);
-  const braceSpan: [number, number] = [voiceRowIdx[0] + 1, voiceRowIdx[voiceRowIdx.length - 1] + 2];
+  const braceSpan: [number, number] = [(voiceRowIdx[0] ?? 0) + 1, (voiceRowIdx[voiceRowIdx.length - 1] ?? 0) + 2];
 
   const template = cols
     .map((c) => (c.k === "unit" ? (sys.stretch ? "minmax(max-content, 1fr)" : "max-content") : "max-content"))
@@ -223,7 +223,7 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
       const style = { gridColumn: gc, gridRow: gr };
       if (col.k === "label") {
         if (row.k === "voice") {
-          const v = score.voices[row.v];
+          const v = score.voices[row.v]!;
           cells.push(
             <div key={key} className="mrd-cell mrd-label" style={style} title={`Voix ${v.name} — référence de portée ${v.ref}`}>
               {showNames && <span>{v.name}</span>}
@@ -266,7 +266,7 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
         return;
       }
       // rangée de voix
-      const voice = score.voices[row.v];
+      const voice = score.voices[row.v]!;
       const measure = voice.measures[col.m];
       if (!measure) return;
       if (col.k === "lead") {
@@ -280,7 +280,7 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
       const unit = measure.units[col.u];
       if (col.k === "sep") {
         if (!unit) return;
-        const marks = voice.measures[col.m].units.some((x) => x.hasMarks) && sysHasMarks(score, sys, row.v);
+        const marks = measure.units.some((x) => x.hasMarks) && sysHasMarks(score, sys, row.v);
         cells.push(
           <div key={key} className={cn("mrd-cell mrd-sep", unit.sepUl && "ul-full", marks && "has-marks")} style={style}>
             {unit.sepBefore === "!" ? <span className="mrd-half" /> : ":"}
@@ -310,12 +310,17 @@ function SystemView({ sys, index, ctx }: { sys: SystemLayout; index: number; ctx
   );
 }
 
+const mu = (k: string): [number, number] => {
+  const [a, b] = k.split(":");
+  return [Number(a), Number(b)];
+};
+
 function isDoubleSep(score: Score, m: number, u: number) {
   return score.voices.some((v) => v.measures[m]?.units[u]?.sepBefore === "||");
 }
 
 function sysHasMarks(score: Score, sys: SystemLayout, v: number) {
-  return sys.segments.some((s) => score.voices[v].measures[s.m]?.units.slice(s.u0, s.u1).some((u) => u.hasMarks));
+  return sys.segments.some((s) => score.voices[v]?.measures[s.m]?.units.slice(s.u0, s.u1).some((u) => u.hasMarks));
 }
 
 function fmtRef(r: number) {
@@ -391,7 +396,7 @@ function LyricCell({ arr, style, small }: { arr: { start: number; text: string }
   const sorted = [...arr].sort((a, b) => a.start - b.start);
   return (
     <div className={cn("mrd-cell mrd-lyrics", small && "is-voice")} style={style}>
-      {sorted.length > 0 && sorted[0].start > 0 && <span style={{ flex: `${sorted[0].start} 1 0` }} />}
+      {sorted[0] && sorted[0].start > 0 && <span style={{ flex: `${sorted[0].start} 1 0` }} />}
       {sorted.map((l, i) => (
         <span key={i} className="mrd-syl" style={{ flex: `${(sorted[i + 1]?.start ?? 1) - l.start} 1 auto` }}>
           {l.text}
