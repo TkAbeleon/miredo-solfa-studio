@@ -55,8 +55,8 @@ voix: Voix 1=0; Voix 2=+1; Basse=-1
 de chaque système ; il est affiché par défaut et peut être masqué (`crochet: non`).
 
 Lorsque le crochet est masqué, une barre initiale le remplace uniquement si le système commence sur
-le premier temps. En cas d'anacrouse (premier événement après le début du temps) ou de reprise au
-milieu d'une mesure, aucune barre initiale supplémentaire n'est ajoutée : le séparateur musical
+le premier temps. En cas d'anacrouse (première attaque sonore décalée par rapport au début de la
+mesure) ou de reprise au milieu d'une mesure, aucune barre initiale supplémentaire n'est ajoutée : le séparateur musical
 réellement présent est conservé. Au début d'une reprise en milieu de mesure, MireDo reprend donc
 `:` ou `!` selon la partition, et non un `:` imposé.
 
@@ -70,6 +70,8 @@ Comme toutes les voix partagent les colonnes de la même grille, l'alignement es
 crochet est un SVG étiré sur les rangées de voix :
 
 ```tsx
+const first = sys.segments[0]!;
+
 <div className="mrd-brace" style={{ gridColumn: gc, gridRow: `${braceSpan[0]} / ${braceSpan[1]}` }}>
   {h.bracket && (
     <svg viewBox="0 0 10 100" preserveAspectRatio="none">
