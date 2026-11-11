@@ -88,13 +88,40 @@ Le moteur (`src/lib/miredo/`) est en TypeScript pur, sans React, pour rester tes
 5. Mettre à jour la ligne correspondante de `src/content/regles/09-couverture.md`.
 6. Si un extrait de code cité dans la documentation change, mettre la documentation à jour.
 
-### 5. Lancer le projet
+### 5. Prérequis et lancement
+
+- **Node.js 22.12 ou supérieur** (Node 22 est recommandé ; Vite 8 exige Node 20.19+ ou 22.12+).
+- **Bun** : gestionnaire de dépendances du dépôt. Le fichier de verrouillage officiel est `bun.lock`.
+
+Sur Linux (dont Fedora), installer Bun avec la commande officielle :
 
 ```sh
-npm i
-npm run dev
-npx vitest run          # tests des règles
+curl -fsSL https://bun.com/install | bash
 ```
+
+Ouvrir un nouveau terminal, puis vérifier les versions :
+
+```sh
+node --version
+bun --version
+```
+
+Depuis la racine du dépôt :
+
+```sh
+bun install --frozen-lockfile
+bun run dev
+```
+
+Autres commandes utiles :
+
+```sh
+bun run test       # tests des règles
+bun run build      # build de production
+bun run lint       # vérification ESLint
+```
+
+**Important :** ne pas utiliser `npm install` ou `npm i` sur ce dépôt. npm ne lit pas `bun.lock` et créerait un second fichier de verrouillage indépendant. Pour toute modification des dépendances, utiliser Bun puis versionner ensemble `package.json` et `bun.lock`.
 
 ---
 
