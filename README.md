@@ -93,13 +93,26 @@ Le moteur (`src/lib/miredo/`) est en TypeScript pur, sans React, pour rester tes
 - **Node.js 22.12 ou supérieur** (Node 22 est recommandé ; Vite 8 exige Node 20.19+ ou 22.12+).
 - **Bun** : gestionnaire de dépendances du dépôt. Le fichier de verrouillage officiel est `bun.lock`.
 
-Sur Linux (dont Fedora), installer Bun avec la commande officielle :
+Sur Fedora, installer d'abord le prérequis système :
+
+```sh
+sudo dnf install unzip
+```
+
+Installer ensuite Bun avec la commande officielle :
 
 ```sh
 curl -fsSL https://bun.com/install | bash
 ```
 
-Ouvrir un nouveau terminal, puis vérifier les versions :
+Fermer puis rouvrir le terminal pour recharger le PATH. Si `bun` reste introuvable, ajouter `$HOME/.bun/bin` au PATH du shell (par exemple dans `~/.bashrc` ou `~/.zshrc`) :
+
+```sh
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+```
+
+Puis ouvrir un nouveau terminal et vérifier les versions :
 
 ```sh
 node --version
